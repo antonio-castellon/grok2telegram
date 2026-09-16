@@ -9,6 +9,8 @@ from bridge.parse import ADMIN_VERBS, SYSTEM_VERBS, Command
 from bridge.store import append_inbox, append_log, save
 from bridge.telegram_io import Telegram
 
+LOCAL_VERBS = frozenset({"help", "whoami", "grant", "revoke", "lang", "status", "reset", "cmd"})
+
 
 def handle(
     cfg: Config,
@@ -55,21 +57,8 @@ def handle(
 
     append_log(game, f"{name}: /cmd {cmd.verb} {cmd.payload[:80]}")
 
-    if cfg.gm_backend == "agent" and cmd.verb in {
-        "new-game",
-        "rules",
-        "limit",
-        "act",
-        "join",
-        "look",
-        "guess",
-        "hint",
-        "next",
-        "a",
-        "b",
-        "c",
-        "d",
-    }:
+    needs_brain = cfg.gm_backend == "agent" and cmd.verb not in LOCAL_VERBS
+    if needs_brain:
         append_inbox(
             cfg.data_dir,
             {
