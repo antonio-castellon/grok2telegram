@@ -4,6 +4,8 @@
 
 # grok2telegram
 
+**Safety:** public table only — no real secrets, no porn. See [docs/SAFETY.md](docs/SAFETY.md).
+
 Welcome, traveler. Hang your cloak. The tavern is a **Telegram group**. The Game Master is a **Grok Agent Bot** that lives on **its own cloud VM** — not on your laptop, not under your desk next to the dusty Pentium that still smells like 1996.
 
 This is the wandering sibling of [grokgame](https://github.com/antonio-castellon/grokgame).  

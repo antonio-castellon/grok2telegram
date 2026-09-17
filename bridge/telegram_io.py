@@ -5,6 +5,7 @@ from typing import Any
 import httpx
 
 from bridge.bbs import bbs_frame
+from bridge.safety import scrub_outbound
 
 API = "https://api.telegram.org"
 
@@ -30,6 +31,7 @@ class Telegram:
     def send_message(self, chat_id: int, text: str, title: str | None = None) -> int | None:
         if not text:
             return None
+        text = scrub_outbound(text)
         html = bbs_frame(text, title=title)
         chunk = html[:3900]
         with httpx.Client(timeout=30) as client:

@@ -4,6 +4,8 @@
 
 # grok2telegram
 
+**Seguridad:** solo mesa pública — sin secretos reales, sin porno. Ver [docs/SAFETY.md](docs/SAFETY.md).
+
 Pasa, cuelga la capa. La taberna es un **grupo de Telegram**. El máster es un **Agent Bot de Grok** que vive en **su propia VM** — no en tu portátil, ni debajo del escritorio junto al Pentium que aún huele a 1996.
 
 Hermano errante de [grokgame](https://github.com/antonio-castellon/grokgame).  

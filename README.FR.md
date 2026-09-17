@@ -4,6 +4,8 @@
 
 # grok2telegram
 
+**Sécurité :** table publique seulement — pas de vrais secrets, pas de porno. Voir [docs/SAFETY.md](docs/SAFETY.md).
+
 Entre, accroche ton manteau. La taverne est un **groupe Telegram**. Le MJ est un **Agent Bot Grok** qui vit sur **sa propre VM** — pas sur ton laptop, pas sous le bureau à côté du Pentium qui sent encore 1996.
 
 Frère errant de [grokgame](https://github.com/antonio-castellon/grokgame).  

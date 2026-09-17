@@ -4,6 +4,8 @@
 
 # grok2telegram
 
+**Sicherheit:** nur öffentlicher Tisch — keine echten Secrets, kein Porno. Siehe [docs/SAFETY.md](docs/SAFETY.md).
+
 Komm rein, häng den Mantel auf. Die Taverne ist eine **Telegram-Gruppe**. Der Spielleiter ist ein **Grok Agent Bot** auf **seiner eigenen VM** — nicht auf deinem Laptop, nicht unter dem Schreibtisch neben dem Pentium, der noch nach 1996 riecht.
 
 Wandernder Bruder von [grokgame](https://github.com/antonio-castellon/grokgame).  

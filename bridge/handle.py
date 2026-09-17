@@ -8,6 +8,7 @@ from bridge.gm_mock import HELP, apply_mock, help_text
 from bridge.parse import ADMIN_VERBS, SYSTEM_VERBS, Command, PURGE_SIGNAL
 from bridge.store import append_inbox, append_log, save
 from bridge.telegram_io import Telegram
+from bridge import safety
 
 LOCAL_VERBS = frozenset({"help", "whoami", "grant", "revoke", "lang", "status", "reset", "cmd", "clear", "restart", "unjoin", "rules", "limit"})
 
@@ -207,6 +208,9 @@ def handle(
 
     if cmd.verb == "ask":
         append_log(game, f"{name}: @bot {cmd.payload[:120]}")
+        blocked = safety.block_reason_for_payload("ask", cmd.payload)
+        if blocked:
+            return safety.refusal(blocked, game.get("lang") or "en")
         append_inbox(
             cfg.data_dir,
             {
@@ -241,6 +245,9 @@ def handle(
 
     needs_brain = cfg.gm_backend == "agent" and cmd.verb not in LOCAL_VERBS
     if needs_brain:
+        blocked = safety.block_reason_for_payload(cmd.verb, cmd.payload)
+        if blocked:
+            return safety.refusal(blocked, game.get("lang") or "en")
         append_inbox(
             cfg.data_dir,
             {
