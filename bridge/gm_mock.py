@@ -83,8 +83,8 @@ VERB_HELP: dict[str, dict[str, str]] = {
         "de": "Nutzung: /cmd cmd list\nListet System- und Spielverben.",
     },
     "status": {
-        "es": "Uso: /cmd status\nFase, título, idioma, reglas y límites.",
-        "en": "Usage: /cmd status\nPhase, title, language, rules and limits.",
+        "es": "Uso: /cmd status\nFase, título, idioma, jugadores joined, reglas y límites.",
+        "en": "Usage: /cmd status\nPhase, title, language, joined players, rules and limits.",
         "fr": "Usage : /cmd status\nPhase, titre, langue, règles et limites.",
         "de": "Nutzung: /cmd status\nPhase, Titel, Sprache, Regeln und Limits.",
     },
@@ -298,8 +298,23 @@ def apply_mock(game: dict[str, Any], verb: str, payload: str, lang: str) -> str:
         game_ = " ".join(c["verb"] for c in game.get("commands") or [])
         return f"sistema: {sys_}\njuego: {game_ or '(nada: /cmd new-game …)'}"
     if verb == "status":
+        players = game.get("players") or {}
+        if players:
+            seats = []
+            for pid, pl in players.items():
+                if isinstance(pl, dict):
+                    name = pl.get("name") or str(pid)
+                    flag = " (bot)" if pl.get("is_bot") else ""
+                    seats.append(f"{name}{flag}")
+                else:
+                    seats.append(str(pl))
+            roster = "\n".join(f"· {s}" for s in seats)
+            joined = f"joined ({len(seats)}):\n{roster}"
+        else:
+            joined = "joined: (nadie)"
         return (
             f"{game.get('title') or '(sin título)'} · {game.get('phase')} · lang={game.get('lang')}\n"
+            f"{joined}\n"
             f"rules={game.get('rules')}\nlimits={game.get('limits')}"
         )
     if verb == "reset":

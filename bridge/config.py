@@ -16,6 +16,8 @@ class Config:
     gm_backend: str
     allowed_chat_ids: frozenset[int]
     data_dir: Path
+    mesa_wake_url: str
+    mesa_wake_key: str
 
 
 def _parse_ids(raw: str) -> frozenset[int]:
@@ -39,4 +41,6 @@ def load_config(env_file: Path | None = None) -> Config:
         gm_backend=backend,
         allowed_chat_ids=_parse_ids(os.getenv("ALLOWED_CHAT_IDS") or ""),
         data_dir=data_dir,
+        mesa_wake_url=(os.getenv("MESA_WAKE_URL") or "").strip(),
+        mesa_wake_key=(os.getenv("MESA_WAKE_KEY") or "").strip(),
     )

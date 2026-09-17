@@ -12,6 +12,7 @@ from bridge.parse import PURGE_SIGNAL, parse_text
 from bridge.purge import bot_can_delete, purge_upto
 from bridge.store import load
 from bridge.telegram_io import Telegram
+from bridge.inbox_flush import flush_pending
 
 log = logging.getLogger("g2t")
 
@@ -148,6 +149,11 @@ def run() -> None:
     except Exception as exc:
         log.warning("getMe: %s", exc)
     log.info("g2t backend=%s bot=@%s", cfg.gm_backend, bot_username or "?")
+    try:
+        stats = flush_pending(cfg, tg)
+        log.info("boot flush %s", stats)
+    except Exception as exc:
+        log.warning("boot flush: %s", exc)
     offset = _read_offset(cfg.data_dir)
     while True:
         try:
