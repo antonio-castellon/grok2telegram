@@ -1,6 +1,6 @@
 [EN](README.md) | [ES](README.ES.md) | [FR](README.FR.md) | [**DE**](README.DE.md)
 
-![Knight + dragon BBS night](docs/img/banner-bbs-desk.png)
+![Knight + dragon BBS night](docs/img/banner-bbs-rats.png)
 
 # grok2telegram
 
