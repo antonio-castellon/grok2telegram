@@ -53,10 +53,10 @@ The app **never** creates groups.
 
 ### 1.4 Your user id
 
-[@userinfobot](https://t.me/userinfobot) → `Id:`:
+[@userinfobot](https://t.me/userinfobot) → `Id:` (example placeholder — use yours):
 
 ```
-ADMIN_TELEGRAM_IDS=83216105
+ADMIN_TELEGRAM_IDS=123456789
 GM_BACKEND=mock
 ```
 

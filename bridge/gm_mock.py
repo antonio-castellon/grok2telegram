@@ -3,19 +3,19 @@ from __future__ import annotations
 from typing import Any
 
 HELP = {
-    "es": "Gramática: /cmd <verbo> [texto]\nSistema: help lang new-game rules limit cmd list status reset whoami grant revoke\nDetalle: /cmd help <verbo>",
-    "en": "Grammar: /cmd <verb> [text]\nSystem: help lang new-game rules limit cmd list status reset whoami grant revoke\nDetail: /cmd help <verb>",
-    "fr": "Grammaire : /cmd <verbe> [texte]\nSystème : help lang new-game rules limit cmd list status reset whoami grant revoke\nDétail : /cmd help <verbe>",
-    "de": "Grammatik: /cmd <verb> [text]\nSystem: help lang new-game rules limit cmd list status reset whoami grant revoke\nDetail: /cmd help <verb>",
+    "es": "Gramática: /cmd <verbo> [texto]  o  @bot <verbo> [texto]\nSistema: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\nDetalle: /cmd help <verbo> | /cmd help extended",
+    "en": "Grammar: /cmd <verb> [text]  or  @bot <verb> [text]\nSystem: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\nDetail: /cmd help <verb> | /cmd help extended",
+    "fr": "Grammaire : /cmd <verbe> [texte]  ou  @bot <verbe> [texte]\nSystème : help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\nDétail : /cmd help <verbe> | /cmd help extended",
+    "de": "Grammatik: /cmd <verb> [text]  oder  @bot <verb> [text]\nSystem: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\nDetail: /cmd help <verb> | /cmd help extended",
 }
 
 # Short usage blurb per system verb (not too long).
 VERB_HELP: dict[str, dict[str, str]] = {
     "help": {
-        "es": "Uso: /cmd help [verbo]\nLista general, o explica un comando.",
-        "en": "Usage: /cmd help [verb]\nOverview, or explain one command.",
-        "fr": "Usage : /cmd help [verbe]\nVue d'ensemble, ou explique une commande.",
-        "de": "Nutzung: /cmd help [verb]\nÜbersicht oder einen Befehl erklären.",
+        "es": "Uso: /cmd help [verbo|extended]\nLista, un comando, o catálogo completo.",
+        "en": "Usage: /cmd help [verb|extended]\nOverview, one command, or full catalog.",
+        "fr": "Usage : /cmd help [verbe|extended]\nVue d'ensemble, une commande, ou catalogue.",
+        "de": "Nutzung: /cmd help [verb|extended]\nÜbersicht, ein Befehl, oder Katalog.",
     },
     "lang": {
         "es": "Uso: /cmd lang es|fr|de|en\nCambia el idioma de la mesa.",
@@ -77,7 +77,26 @@ VERB_HELP: dict[str, dict[str, str]] = {
         "fr": "Usage : /cmd revoke <id>\nAdmin : retire le rôle admin de table.",
         "de": "Nutzung: /cmd revoke <id>\nAdmin: entzieht dem User Tisch-Admin.",
     },
+    "clear": {
+        "es": "Uso: /cmd clear all\nAdmin: borra mensajes recientes del chat (confirma con all).",
+        "en": "Usage: /cmd clear all\nAdmin: deletes recent chat messages (confirm with all).",
+        "fr": "Usage : /cmd clear all\nAdmin : efface les messages récents (confirmer avec all).",
+        "de": "Nutzung: /cmd clear all\nAdmin: löscht aktuelle Chat-Nachrichten (mit all bestätigen).",
+    },
+    "restart": {
+        "es": "Uso: /cmd restart\nAdmin: misma mesa, borra marcadores y reinicia la ronda.",
+        "en": "Usage: /cmd restart\nAdmin: same table, clear scores and restart the round.",
+        "fr": "Usage : /cmd restart\nAdmin : même table, scores à zéro, nouvelle manche.",
+        "de": "Nutzung: /cmd restart\nAdmin: gleiche Runde, Punkte weg, Neustart.",
+    },
+    "unjoin": {
+        "es": "Uso: /cmd unjoin [id]\nSales de la mesa; tu turno se salta.",
+        "en": "Usage: /cmd unjoin [id]\nLeave the table; your turn is skipped.",
+        "fr": "Usage : /cmd unjoin [id]\nQuitte la table ; ton tour est sauté.",
+        "de": "Nutzung: /cmd unjoin [id]\nTisch verlassen; Zug wird übersprungen.",
+    },
 }
+
 
 _UNKNOWN = {
     "es": "Comando desconocido: {verb}. /cmd cmd list",
@@ -98,12 +117,100 @@ def _cmds_for_brief(brief: str) -> list[dict[str, str]]:
     return [{"verb": v, "help": h} for v, h in verbs]
 
 
+# Ultra-short blurbs for the phone-width extended catalog (INNER≈24).
+VERB_SHORT: dict[str, dict[str, str]] = {
+    "help": {"es": "lista o detalla un cmd", "en": "list or explain a cmd", "fr": "liste ou explique", "de": "Liste oder Erklärung"},
+    "lang": {"es": "idioma de la mesa", "en": "set table language", "fr": "langue de la table", "de": "Sprache setzen"},
+    "new-game": {"es": "admin: nueva partida", "en": "admin: start a game", "fr": "admin: nouvelle partie", "de": "Admin: neues Spiel"},
+    "rules": {"es": "ver/añadir reglas", "en": "show/add rules", "fr": "voir/ajouter règles", "de": "Regeln zeigen/add"},
+    "limit": {"es": "ver/añadir límites", "en": "show/add limits", "fr": "voir/ajouter limites", "de": "Limits zeigen/add"},
+    "cmd": {"es": "listar verbos", "en": "list verbs", "fr": "lister verbes", "de": "Verben listen"},
+    "status": {"es": "estado de la mesa", "en": "table status", "fr": "état de la table", "de": "Tisch-Status"},
+    "reset": {"es": "admin: cierra mesa", "en": "admin: close table", "fr": "admin: ferme table", "de": "Admin: Runde zu"},
+    "restart": {"es": "admin: reinicia ronda", "en": "admin: restart round", "fr": "admin: relance", "de": "Admin: Neustart"},
+    "unjoin": {"es": "salir; salta turno", "en": "leave; skip turn", "fr": "partir; saute tour", "de": "gehen; Zug skip"},
+    "whoami": {"es": "tu id y admin", "en": "your id and admin", "fr": "ton id et admin", "de": "Id und Admin"},
+    "grant": {"es": "admin: dar admin", "en": "admin: grant admin", "fr": "admin: donner admin", "de": "Admin: Recht geben"},
+    "revoke": {"es": "admin: quitar admin", "en": "admin: revoke admin", "fr": "admin: retirer admin", "de": "Admin: Recht weg"},
+    "clear": {"es": "admin: borrar msgs", "en": "admin: delete msgs", "fr": "admin: effacer msgs", "de": "Admin: Msgs löschen"},
+}
+
+
+def _one_line(blurb: str, limit: int = 22) -> str:
+    """Collapse multi-line usage into a short phone-width line."""
+    parts = [p.strip() for p in (blurb or "").splitlines() if p.strip()]
+    if not parts:
+        return ""
+    if len(parts) == 1:
+        line = parts[0]
+    else:
+        line = parts[1] if parts[0].lower().startswith(("uso:", "usage", "nutzung", "usage :")) else parts[-1]
+    for prefix in ("Uso: ", "Usage: ", "Usage : ", "Nutzung: "):
+        if line.startswith(prefix):
+            line = line[len(prefix) :]
+    line = " ".join(line.split())
+    if len(line) > limit:
+        line = line[: limit - 1].rstrip() + "…"
+    return line
+
+
+def _entry_block(verb: str, short: str) -> list[str]:
+    """Command, dash ruler, explanation — readable inside WIDTH=28 cards."""
+    verb = (verb or "").strip()
+    short = (short or "").strip() or verb
+    ruler = "-" * max(8, min(22, max(len(verb), 8)))
+    return [verb, ruler, short]
+
+
+def help_extended(game: dict[str, Any], lang: str) -> str:
+    """All commands: verb / dashes / short explanation (system + game)."""
+    lang = lang if lang in HELP else "es"
+    blocks: list[list[str]] = []
+    order = [
+        "help",
+        "lang",
+        "new-game",
+        "rules",
+        "limit",
+        "cmd",
+        "status",
+        "reset",
+        "restart",
+        "unjoin",
+        "whoami",
+        "grant",
+        "revoke",
+        "clear",
+    ]
+    for verb in order:
+        pack = VERB_SHORT.get(verb) or {}
+        short = pack.get(lang) or pack.get("en")
+        if not short:
+            long_pack = VERB_HELP.get(verb) or {}
+            short = _one_line(long_pack.get(lang) or long_pack.get("en") or "", 22)
+        blocks.append(_entry_block(verb, short or verb))
+    for item in game.get("commands") or []:
+        verb = str(item.get("verb") or "").strip()
+        if not verb or verb in VERB_HELP:
+            continue
+        blurb = str(item.get("help") or "").strip() or verb
+        blocks.append(_entry_block(verb, _one_line(blurb, 22)))
+    lines: list[str] = []
+    for i, block in enumerate(blocks):
+        if i:
+            lines.append("---")  # skin.DIV → horizontal rule inside the card
+        lines.extend(block)
+    return "\n".join(lines)
+
+
 def help_text(game: dict[str, Any], lang: str, topic: str = "") -> str:
-    """Overview, or a short usage blurb for one verb."""
+    """Overview, extended catalog, or a short usage blurb for one verb."""
     lang = lang if lang in HELP else "es"
     topic = (topic or "").strip().split()[0].lower() if topic else ""
     if not topic:
         return HELP[lang]
+    if topic in {"extended", "all", "full", "extenso", "completo"}:
+        return help_extended(game, lang)
 
     # System verb
     pack = VERB_HELP.get(topic)
@@ -150,7 +257,7 @@ def apply_mock(game: dict[str, Any], verb: str, payload: str, lang: str) -> str:
             game.setdefault("limits", []).append(payload)
         return "limits: " + " | ".join(game.get("limits") or ["—"])
     if verb == "cmd" and payload.split()[:1] == ["list"]:
-        sys_ = "help lang new-game rules limit cmd status reset whoami grant revoke"
+        sys_ = "help lang new-game rules limit cmd status reset restart unjoin whoami grant revoke clear"
         game_ = " ".join(c["verb"] for c in game.get("commands") or [])
         return f"sistema: {sys_}\njuego: {game_ or '(nada: /cmd new-game …)'}"
     if verb == "status":

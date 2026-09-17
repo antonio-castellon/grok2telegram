@@ -30,3 +30,32 @@ def test_alias():
     c = parse_text("cmd join")
     assert c is not None
     assert c.verb == "join"
+
+
+def test_mention_help_all():
+    c = parse_text("@grok_maser_game_bot help all", bot_username="grok_maser_game_bot")
+    assert c is not None
+    assert c.verb == "help"
+    assert c.payload == "all"
+
+
+def test_mention_case_insensitive():
+    c = parse_text("@Grok_Maser_Game_Bot status", bot_username="grok_maser_game_bot")
+    assert c is not None
+    assert c.verb == "status"
+
+
+def test_mention_wrong_bot_ignored():
+    assert parse_text("@other_bot help", bot_username="grok_maser_game_bot") is None
+
+
+def test_mention_alone_is_help():
+    c = parse_text("@grok_maser_game_bot", bot_username="grok_maser_game_bot")
+    assert c is not None
+    assert c.verb == "help"
+
+
+def test_cmd_at_botname():
+    c = parse_text("/cmd@grok_maser_game_bot whoami")
+    assert c is not None
+    assert c.verb == "whoami"

@@ -27,9 +27,9 @@ class Telegram:
             raise RuntimeError(data)
         return list(data.get("result") or [])
 
-    def send_message(self, chat_id: int, text: str, title: str | None = None) -> None:
+    def send_message(self, chat_id: int, text: str, title: str | None = None) -> int | None:
         if not text:
-            return
+            return None
         html = bbs_frame(text, title=title)
         chunk = html[:3900]
         with httpx.Client(timeout=30) as client:
@@ -42,6 +42,53 @@ class Telegram:
                 },
             )
             r.raise_for_status()
+            data = r.json()
+        if not data.get("ok"):
+            raise RuntimeError(data)
+        result = data.get("result") or {}
+        mid = result.get("message_id")
+        return int(mid) if mid is not None else None
+
+    def delete_message(self, chat_id: int, message_id: int) -> None:
+        with httpx.Client(timeout=30) as client:
+            r = client.post(
+                f"{self._base}/deleteMessage",
+                json={"chat_id": chat_id, "message_id": message_id},
+            )
+            data = r.json()
+        if not data.get("ok"):
+            raise RuntimeError(data.get("description") or data)
+
+    def delete_messages(self, chat_id: int, message_ids: list[int]) -> None:
+        with httpx.Client(timeout=30) as client:
+            r = client.post(
+                f"{self._base}/deleteMessages",
+                json={"chat_id": chat_id, "message_ids": message_ids},
+            )
+            data = r.json()
+        if not data.get("ok"):
+            raise RuntimeError(data.get("description") or data)
+
+    def get_me(self) -> dict[str, Any]:
+        with httpx.Client(timeout=30) as client:
+            r = client.get(f"{self._base}/getMe")
+            r.raise_for_status()
+            data = r.json()
+        if not data.get("ok"):
+            raise RuntimeError(data)
+        return dict(data.get("result") or {})
+
+    def get_chat_member(self, chat_id: int, user_id: int) -> dict[str, Any]:
+        with httpx.Client(timeout=30) as client:
+            r = client.get(
+                f"{self._base}/getChatMember",
+                params={"chat_id": chat_id, "user_id": user_id},
+            )
+            r.raise_for_status()
+            data = r.json()
+        if not data.get("ok"):
+            raise RuntimeError(data.get("description") or data)
+        return dict(data.get("result") or {})
 
     def get_chat_administrators(self, chat_id: int) -> set[int]:
         with httpx.Client(timeout=30) as client:
