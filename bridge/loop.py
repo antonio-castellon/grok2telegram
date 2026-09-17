@@ -77,6 +77,8 @@ def run() -> None:
             )
             if say:
                 try:
-                    tg.send_message(int(chat_id), say)
+                    raw_title = (game.get("title") or "").strip()
+                    board_title = raw_title.split()[0][:20] if raw_title else None
+                    tg.send_message(int(chat_id), say, title=board_title)
                 except Exception as exc:
                     log.warning("sendMessage: %s", exc)

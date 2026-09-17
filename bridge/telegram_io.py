@@ -4,6 +4,8 @@ from typing import Any
 
 import httpx
 
+from bridge.bbs import bbs_frame
+
 API = "https://api.telegram.org"
 
 
@@ -25,14 +27,19 @@ class Telegram:
             raise RuntimeError(data)
         return list(data.get("result") or [])
 
-    def send_message(self, chat_id: int, text: str) -> None:
+    def send_message(self, chat_id: int, text: str, title: str | None = None) -> None:
         if not text:
             return
-        chunk = text[:3900]
+        html = bbs_frame(text, title=title)
+        chunk = html[:3900]
         with httpx.Client(timeout=30) as client:
             r = client.post(
                 f"{self._base}/sendMessage",
-                json={"chat_id": chat_id, "text": chunk},
+                json={
+                    "chat_id": chat_id,
+                    "text": chunk,
+                    "parse_mode": "HTML",
+                },
             )
             r.raise_for_status()
 

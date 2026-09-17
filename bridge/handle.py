@@ -4,7 +4,7 @@ from typing import Any
 
 from bridge.admin import is_admin
 from bridge.config import Config
-from bridge.gm_mock import HELP, apply_mock
+from bridge.gm_mock import HELP, apply_mock, help_text
 from bridge.parse import ADMIN_VERBS, SYSTEM_VERBS, Command
 from bridge.store import append_inbox, append_log, save
 from bridge.telegram_io import Telegram
@@ -29,7 +29,7 @@ def handle(
         return f"{name} id={uid} admin={'yes' if admin else 'no'}"
 
     if cmd.verb == "help":
-        return HELP.get(game.get("lang") or "es", HELP["es"])
+        return help_text(game, game.get("lang") or "es", cmd.payload)
 
     if cmd.verb in ADMIN_VERBS and not admin:
         return "solo admin."
