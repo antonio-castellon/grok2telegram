@@ -1,6 +1,6 @@
-[EN](README.md) · [ES](README.ES.md) · [**FR**](README.FR.md) · [DE](README.DE.md)
+[EN](README.md) | [ES](README.ES.md) | [**FR**](README.FR.md) | [DE](README.DE.md)
 
-![SysOp night shift — Knight + dragon BBS banner](docs/img/banner-knight-dragon-bbs.png)
+![Knight + dragon BBS night](docs/img/banner-knight-dragon-bbs.png)
 
 # grok2telegram
 
