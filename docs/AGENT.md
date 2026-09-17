@@ -29,3 +29,12 @@ When you wake:
 6. Advance the inbox with `bridge.drain.mark_all_read` after handling
 
 `say` is the only text players should see.
+
+**Inbox rule (no silence)**
+
+Every pending `data/inbox.jsonl` line MUST get a group `say` on that wake: a real answer, or a short "I don't understand / need X". Never mark the inbox read while skipping an item. Prefer draining often while a table is live.
+
+
+**Free-form @bot**
+
+`@bot <natural language>` arrives as inbox verb `ask` with the full text in `payload`. Read it, act in character for the current table (answer, clarify, advance play), and `bridge.send` a `say`. If you do not understand, say so briefly in `table.lang`.

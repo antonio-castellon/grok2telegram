@@ -3,14 +3,49 @@ from __future__ import annotations
 from typing import Any
 
 HELP = {
-    "es": "Gramática: /cmd <verbo> [texto]  o  @bot <verbo> [texto]\nSistema: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\nDetalle: /cmd help <verbo> | /cmd help extended",
-    "en": "Grammar: /cmd <verb> [text]  or  @bot <verb> [text]\nSystem: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\nDetail: /cmd help <verb> | /cmd help extended",
-    "fr": "Grammaire : /cmd <verbe> [texte]  ou  @bot <verbe> [texte]\nSystème : help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\nDétail : /cmd help <verbe> | /cmd help extended",
-    "de": "Grammatik: /cmd <verb> [text]  oder  @bot <verb> [text]\nSystem: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\nDetail: /cmd help <verb> | /cmd help extended",
+    "es": (
+        "Gramática:\n"
+        "/cmd <verbo> [texto]\n"
+        "@bot <verbo> [texto]\n"
+        "@bot <texto libre> → hablas con el GM de la mesa\n"
+        "Sistema: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\n"
+        "Detalle: /cmd help <verbo> | /cmd help extended"
+    ),
+    "en": (
+        "Grammar:\n"
+        "/cmd <verb> [text]\n"
+        "@bot <verb> [text]\n"
+        "@bot <free text> → talk to the table GM\n"
+        "System: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\n"
+        "Detail: /cmd help <verb> | /cmd help extended"
+    ),
+    "fr": (
+        "Grammaire :\n"
+        "/cmd <verbe> [texte]\n"
+        "@bot <verbe> [texte]\n"
+        "@bot <texte libre> → tu parles au GM de la table\n"
+        "Système : help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\n"
+        "Détail : /cmd help <verbe> | /cmd help extended"
+    ),
+    "de": (
+        "Grammatik:\n"
+        "/cmd <verb> [text]\n"
+        "@bot <verb> [text]\n"
+        "@bot <freier Text> → du sprichst mit dem Tisch-GM\n"
+        "System: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\n"
+        "Detail: /cmd help <verb> | /cmd help extended"
+    ),
 }
+
 
 # Short usage blurb per system verb (not too long).
 VERB_HELP: dict[str, dict[str, str]] = {
+    "ask": {
+        "es": "Uso: @bot <texto>\nHabla al GM en lenguaje natural.",
+        "en": "Usage: @bot <text>\nTalk to the GM in natural language.",
+        "fr": "Usage : @bot <texte>\nParle au GM en langage naturel.",
+        "de": "Nutzung: @bot <text>\nFrei mit dem GM sprechen.",
+    },
     "help": {
         "es": "Uso: /cmd help [verbo|extended]\nLista, un comando, o catálogo completo.",
         "en": "Usage: /cmd help [verb|extended]\nOverview, one command, or full catalog.",
@@ -119,6 +154,7 @@ def _cmds_for_brief(brief: str) -> list[dict[str, str]]:
 
 # Ultra-short blurbs for the phone-width extended catalog (INNER≈24).
 VERB_SHORT: dict[str, dict[str, str]] = {
+    "ask": {"es": "hablar al GM", "en": "talk to the GM", "fr": "parler au GM", "de": "mit GM reden"},
     "help": {"es": "lista o detalla un cmd", "en": "list or explain a cmd", "fr": "liste ou explique", "de": "Liste oder Erklärung"},
     "lang": {"es": "idioma de la mesa", "en": "set table language", "fr": "langue de la table", "de": "Sprache setzen"},
     "new-game": {"es": "admin: nueva partida", "en": "admin: start a game", "fr": "admin: nouvelle partie", "de": "Admin: neues Spiel"},
@@ -167,6 +203,7 @@ def help_extended(game: dict[str, Any], lang: str) -> str:
     lang = lang if lang in HELP else "es"
     blocks: list[list[str]] = []
     order = [
+        "ask",
         "help",
         "lang",
         "new-game",

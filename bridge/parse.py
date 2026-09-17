@@ -20,6 +20,7 @@ SYSTEM_VERBS = frozenset(
         "clear",
         "restart",
         "unjoin",
+        "ask",  # free-form @bot chat → Agent
     }
 )
 ADMIN_VERBS = frozenset(
@@ -32,6 +33,7 @@ PURGE_SIGNAL = "__PURGE_ALL__"
 class Command:
     verb: str
     payload: str
+    via_mention: bool = False
 
 
 def _strip_bot_mention(line: str, bot_username: str | None) -> str | None:
@@ -46,21 +48,20 @@ def _strip_bot_mention(line: str, bot_username: str | None) -> str | None:
     if not lower.startswith(mention):
         return None
     rest = line[len(mention) :]
-    # Telegram sometimes sticks punctuation: @bot, help  /  @bot: help
-    return rest.lstrip(" 	:,-")
+    return rest.lstrip(" \t:,-")
 
 
 def parse_text(text: str | None, bot_username: str | None = None) -> Command | None:
-    """Parse /cmd …, cmd …, or @bot_username … into a Command."""
+    """Parse /cmd …, cmd …, or @bot … (command verb OR free-form ask)."""
     if not text:
         return None
     line = text.strip()
     rest: str | None = None
+    via_mention = False
 
     if line.startswith("/cmd"):
         rest = line[4:]
         if rest.startswith("@"):
-            # /cmd@BotName verb …
             rest = rest.split(None, 1)[1] if " " in rest else ""
         else:
             rest = rest.lstrip()
@@ -71,16 +72,25 @@ def parse_text(text: str | None, bot_username: str | None = None) -> Command | N
         if mentioned is None:
             return None
         rest = mentioned
+        via_mention = True
 
     rest = (rest or "").strip()
     if not rest:
-        return Command(verb="help", payload="")
+        return Command(verb="help", payload="", via_mention=via_mention)
+
     parts = rest.split(None, 1)
-    verb = parts[0].lower()
-    # allow /help via mention typos: "@bot /help all" → strip leading slash on verb
-    if verb.startswith("/"):
-        verb = verb[1:]
+    first = parts[0].lower()
+    if first.startswith("/"):
+        first = first[1:]
     payload = parts[1].strip() if len(parts) > 1 else ""
-    if not VERB_RE.match(verb):
+
+    # @bot <free text>: if the first token is not a tidy verb, whole rest is ask.
+    if via_mention and not VERB_RE.match(first):
+        return Command(verb="ask", payload=rest, via_mention=True)
+
+    if not VERB_RE.match(first):
         return None
-    return Command(verb=verb, payload=payload)
+
+    # @bot <maybe-verb> … — unknown verbs become free-form ask (handle decides
+    # known game verbs later; we still parse as verb here, handle promotes).
+    return Command(verb=first, payload=payload, via_mention=via_mention)

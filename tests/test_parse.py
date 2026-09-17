@@ -59,3 +59,26 @@ def test_cmd_at_botname():
     c = parse_text("/cmd@grok_maser_game_bot whoami")
     assert c is not None
     assert c.verb == "whoami"
+
+
+def test_mention_freeform_non_verb_token():
+    c = parse_text("@grok_maser_game_bot ¿quién gana?", bot_username="grok_maser_game_bot")
+    assert c is not None
+    assert c.verb == "ask"
+    assert "gana" in c.payload.lower()
+    assert c.via_mention is True
+
+
+def test_mention_english_words_parsed_as_verb_for_handle():
+    # Tidy tokens parse as verbs; handle promotes unknowns to ask.
+    c = parse_text("@grok_maser_game_bot what are the rules?", bot_username="grok_maser_game_bot")
+    assert c is not None
+    assert c.verb == "what"
+    assert c.via_mention is True
+
+
+def test_mention_known_verb_still_command():
+    c = parse_text("@grok_maser_game_bot join", bot_username="grok_maser_game_bot")
+    assert c is not None
+    assert c.verb == "join"
+    assert c.via_mention is True

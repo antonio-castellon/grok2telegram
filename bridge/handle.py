@@ -9,7 +9,7 @@ from bridge.parse import ADMIN_VERBS, SYSTEM_VERBS, Command, PURGE_SIGNAL
 from bridge.store import append_inbox, append_log, save
 from bridge.telegram_io import Telegram
 
-LOCAL_VERBS = frozenset({"help", "whoami", "grant", "revoke", "lang", "status", "reset", "cmd", "clear", "restart", "unjoin"})
+LOCAL_VERBS = frozenset({"help", "whoami", "grant", "revoke", "lang", "status", "reset", "cmd", "clear", "restart", "unjoin", "rules", "limit"})
 
 def _strip_player_runtime(players: dict) -> dict:
     """Keep seat identity; drop hands/scores/results."""
@@ -198,7 +198,44 @@ def handle(
     if cmd.verb not in SYSTEM_VERBS:
         known = {c["verb"] for c in game.get("commands") or []}
         if cmd.verb not in known:
-            return f"comando desconocido: {cmd.verb}. /cmd cmd list"
+            # @bot free chat: treat unknown first word as natural language to the GM
+            if getattr(cmd, "via_mention", False):
+                full = f"{cmd.verb} {cmd.payload}".strip()
+                cmd = Command(verb="ask", payload=full, via_mention=True)
+            else:
+                return f"comando desconocido: {cmd.verb}. /cmd cmd list"
+
+    if cmd.verb == "ask":
+        append_log(game, f"{name}: @bot {cmd.payload[:120]}")
+        append_inbox(
+            cfg.data_dir,
+            {
+                "schema": "mesa.v1",
+                "chat_id": chat_id,
+                "user": {"id": uid, "name": name, "is_admin": admin},
+                "lang": game.get("lang") or "es",
+                "verb": "ask",
+                "payload": cmd.payload,
+                "table": {
+                    "phase": game.get("phase"),
+                    "title": game.get("title"),
+                    "brief": game.get("brief"),
+                    "rules": game.get("rules"),
+                    "limits": game.get("limits"),
+                    "commands": game.get("commands"),
+                    "blob": game.get("blob"),
+                },
+            },
+        )
+        save(cfg.data_dir, game)
+        lang = game.get("lang") or "es"
+        ack = {
+            "es": "Te leo. Un momento…",
+            "en": "Reading you. One moment…",
+            "fr": "Je te lis. Un instant…",
+            "de": "Ich lese mit. Einen Moment…",
+        }
+        return ack.get(lang, ack["en"])
 
     append_log(game, f"{name}: /cmd {cmd.verb} {cmd.payload[:80]}")
 
@@ -225,7 +262,15 @@ def handle(
             },
         )
         save(cfg.data_dir, game)
-        return ""
+        # Never leave the group in silence while the Agent drains the inbox.
+        lang = game.get("lang") or "es"
+        ack = {
+            "es": f"Recibido: /cmd {cmd.verb}. Preparo respuesta…",
+            "en": f"Got it: /cmd {cmd.verb}. Working on it…",
+            "fr": f"Reçu : /cmd {cmd.verb}. Je prépare la réponse…",
+            "de": f"OK: /cmd {cmd.verb}. Antwort kommt…",
+        }
+        return ack.get(lang, ack["en"])
 
     say = apply_mock(game, cmd.verb, cmd.payload, game.get("lang") or "es")
     save(cfg.data_dir, game)
