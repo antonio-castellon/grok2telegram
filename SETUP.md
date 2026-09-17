@@ -142,3 +142,9 @@ No `XAI_API_KEY`. No `WEBHOOK_*` required.
 | 401 Telegram | bad token |
 | Silence after `new-game` in agent mode | Agent asleep; no routine; inbox not drained |
 | Missing updates | two `getUpdates` loops (this VM + grokgame on a PC) |
+
+## Optional: instant Mesa wake
+
+For RPG nights, set `MESA_WAKE_URL` and `MESA_WAKE_KEY` in `.env` (see `.env.example`).
+The bridge POSTs on every inbox append. Never commit the key.
+
