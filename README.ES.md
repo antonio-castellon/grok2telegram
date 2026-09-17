@@ -1,15 +1,6 @@
 [EN](README.md) · [**ES**](README.ES.md) · [FR](README.FR.md) · [DE](README.DE.md)
 
-```
-╔══════════════════════════════════════════════════════════╗
-║  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄  ║
-║  █  ***  G R O K 2 T E L E G R A M  B B S  ***       █  ║
-║  █      rol de los 90 · sin RTC · solo /cmd          █  ║
-║  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  ║
-║   SysOp: Mesa   ·   Tablero: tu grupo de Telegram        ║
-║   "Tirad iniciativa. El módem es opcional."              ║
-╚══════════════════════════════════════════════════════════╝
-```
+![SysOp night shift — Knight + dragon BBS banner](docs/img/banner-knight-dragon-bbs.png)
 
 # grok2telegram
 

@@ -1,15 +1,6 @@
 [EN](README.md) · [ES](README.ES.md) · [FR](README.FR.md) · [**DE**](README.DE.md)
 
-```
-╔══════════════════════════════════════════════════════════╗
-║  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄  ║
-║  █  ***  G R O K 2 T E L E G R A M  B B S  ***       █  ║
-║  █      90er-Pen&Paper · kein Modem · nur /cmd       █  ║
-║  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  ║
-║   SysOp: Mesa   ·   Brett: deine Telegram-Gruppe         ║
-║   "Initiative würfeln. Modem optional."                  ║
-╚══════════════════════════════════════════════════════════╝
-```
+![SysOp night shift — Knight + dragon BBS banner](docs/img/banner-knight-dragon-bbs.png)
 
 # grok2telegram
 

@@ -1,15 +1,6 @@
 [EN](README.md) · [ES](README.ES.md) · [**FR**](README.FR.md) · [DE](README.DE.md)
 
-```
-╔══════════════════════════════════════════════════════════╗
-║  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄  ║
-║  █  ***  G R O K 2 T E L E G R A M  B B S  ***       █  ║
-║  █      JDR façon 90 · pas de RTC · juste /cmd       █  ║
-║  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  ║
-║   SysOp: Mesa   ·   Plateau: ton groupe Telegram         ║
-║   "Initiative. Le modem est optionnel."                  ║
-╚══════════════════════════════════════════════════════════╝
-```
+![SysOp night shift — Knight + dragon BBS banner](docs/img/banner-knight-dragon-bbs.png)
 
 # grok2telegram
 
