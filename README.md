@@ -6,26 +6,31 @@
 
 Table rules: [docs/SAFETY.md](docs/SAFETY.md).
 
-Welcome, traveler. Hang your cloak. The tavern is a **Telegram group**. The Game Master is a **Grok Agent Bot** that lives on **its own cloud VM** — not on your laptop, not under your desk next to the dusty Pentium that still smells like 1996.
+This is an experiment with a ridiculous premise and a wholesome excuse — a **fork of [grokgame](https://github.com/antonio-castellon/grokgame)** so the Desktop PC can finally go to bed.
 
-This is the wandering sibling of [grokgame](https://github.com/antonio-castellon/grokgame).  
-`grokgame` = the board **on your PC**.  
-`grok2telegram` = the same `/cmd` pipe **without a house server and without `XAI_API_KEY`**.
+**Can an agent bot be the Dungeon Master?** Not a rules engine with 400 pages of errata. A brain. Tonight it runs a dragon hunt. Tomorrow it deals 21. On Saturday it becomes Parchís with extra spite. Same group, same friends, new table.
 
-You bring friends. Mesa brings dice, ASCII cards, and suspiciously good timing.
+The channel is **Telegram**, on purpose. Kids already have it. Parents already have it. Nobody has to install *Yet Another Game Client 3.2 (beta)* and create an account named `xXDarkWizard2009Xx`. If the phone can ping a group chat, it can sit at this table.
 
----
+That is the old internet sneaking back in through a modern door. Before graphics cards had more fans than a football stadium, people played on **BBS boards**, ASCII dungeons, and MUDs where a dragon was three characters of fire and a lot of imagination:
 
-## Why does this even exist?
+```
+  /\
+ /  \    "You hear dice in the dark."
+< DM >
+ \  /
+  \/
+```
 
-Because someone said: *“Can we play a proper tabletop game in Telegram without me babysitting a process on my Desktop PC?”*
+Same energy. Type a command. Get a story. Argue about whether the orc really had line of sight. The felt is a chat window; the master is Grok.
 
-Yes.
+I built the first table **for fun, for my son**, so he can drag his friends into a game without a rulebook, a shop, or a “minimum 40 GB download.” One group. One bot. An adult hits `/cmd new-game …` in plain language. Grok invents the rest.
 
-- Players type in a group chat like it’s a BBS door game.
-- One thin **Python bridge** long-polls Telegram (`getUpdates`) and speaks BBS-framed HTML `<pre>` cards back.
-- Anything that needs a real GM brain goes into an **inbox**. **Mesa** (the Agent) wakes, narrates, invents verbs, deals destiny, and sends a `say`.
-- Your laptop is **not** in the path. No inbound ports. The Agent *is* the process that talks.
+**This fork is the second dare:** can we do that **without babysitting a Python process on the Desktop PC**? Here the thin `/cmd` pipe lives on the **Agent Bot VM**. No house server. No `XAI_API_KEY`. If an agent can be a GM tonight, it can be a quizmaster tomorrow, a camp counselor, a homework devil, a family storyteller — games first, other tables later.
+
+If it works, we get a pocket tavern that does not need the PC left on. If it does not, we still get a funny evening and some ASCII cards. Either way: the knight stays on the box art, the kids stay on Telegram, and the grown-up does not have to explain Steam *or* `systemd` to a twelve-year-old at 22:17.
+
+**Want to open your own table?** The boring (necessary) bits are in **[SETUP.md](SETUP.md)**.
 
 Do **not** run this loop and `grokgame`’s `getUpdates` on the **same bot token** at the same time. Telegram will pick a favorite and the other will cry `409 Conflict` into the void.
 

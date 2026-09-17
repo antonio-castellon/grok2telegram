@@ -6,26 +6,31 @@
 
 Tischregeln: [docs/SAFETY.md](docs/SAFETY.md).
 
-Komm rein, häng den Mantel auf. Die Taverne ist eine **Telegram-Gruppe**. Der Spielleiter ist ein **Grok Agent Bot** auf **seiner eigenen VM** — nicht auf deinem Laptop, nicht unter dem Schreibtisch neben dem Pentium, der noch nach 1996 riecht.
+Das hier ist ein Experiment mit einer albernen Prämisse und einer herzlichen Ausrede — ein **Fork von [grokgame](https://github.com/antonio-castellon/grokgame)**, damit der Desktop PC endlich schlafen gehen darf.
 
-Wandernder Bruder von [grokgame](https://github.com/antonio-castellon/grokgame).  
-`grokgame` = der Tisch **auf deinem PC**.  
-`grok2telegram` = dieselbe `/cmd`-Pipe **ohne Heimserver und ohne `XAI_API_KEY`**.
+**Kann ein Agent der Spielleiter sein?** Keine Regelmaschine mit 400 Seiten Errata. Ein Gehirn. Heute Abend leitet er eine Drachenjagd. Morgen gibt er 21 aus. Am Samstag wird er zum Parchís mit Extra-Bosheit. Dieselbe Gruppe, dieselben Freunde, ein neuer Tisch.
 
-Du bringst Freunde. Mesa bringt Würfel, ASCII-Karten und verdächtig gutes Timing.
+Der Kanal ist **Telegram**, absichtlich. Die Kinder haben es schon. Die Eltern auch. Niemand muss *Yet Another Game Client 3.2 (beta)* installieren oder einen Account namens `xXDunklerMagier2009Xx` anlegen. Wenn das Handy in eine Gruppe tippen kann, hat es schon einen Platz an diesem Tisch.
 
----
+Das ist das alte Internet, das sich durch eine moderne Tür mogelt. Bevor Grafikkarten mehr Lüfter hatten als ein Fußballstadion, spielte man auf **BBS-Boards**, ASCII-Kerkern und MUDs, wo ein Drache aus drei Zeichen Feuer und sehr viel Vorstellungskraft bestand:
 
-## Wozu das Ganze?
+```
+  /\
+ /  \    "Du hörst Würfel in der Dunkelheit."
+< DM >
+ \  /
+  \/
+```
 
-Weil jemand sagte: *„Können wir richtig am Telegram-Tisch spielen, ohne dass ich einen Prozess auf dem Desktop PC babysitte?“*
+Dieselbe Energie. Befehl tippen. Geschichte kriegen. Streiten, ob der Ork wirklich Sichtlinie hatte. Das Filz ist ein Chatfenster; der Meister ist Grok.
 
-Ja.
+Den ersten Tisch habe ich **zum Spaß, für meinen Sohn** gebaut, damit er seine Freunde in ein Spiel ziehen kann — ohne Regelbuch, ohne Shop, ohne „mindestens 40 GB Download“. Eine Gruppe. Ein Bot. Ein Erwachsener schreibt `/cmd new-game …` in normaler Sprache. Grok erfindet den Rest.
 
-- Spieler tippen in der Gruppe wie in einem BBS-Door-Game.
-- Eine dünne **Python-Bridge** long-pollt (`getUpdates`) und antwortet mit BBS-Karten in HTML `<pre>`.
-- Was ein echtes SL-Gehirn braucht, landet in einer **Inbox**. **Mesa** (der Agent) wacht auf, erzählt, erfindet Verben, schickt ein `say`.
-- Der Laptop ist **nicht** im Pfad. Keine eingehenden Ports. Der Agent *ist* der Sprecher.
+**Dieser Fork ist die zweite Wette:** geht das **ohne einen Python-Prozess auf dem Desktop PC zu babysitten**? Hier lebt die dünne `/cmd`-Pipe auf der **Agent-Bot-VM**. Kein Heimserver. Kein `XAI_API_KEY`. Wenn ein Agent heute SL sein kann, kann er morgen Quizmaster sein, Betreuer, Hausaufgaben-Teufel, Familienerzähler — erst Spiele, dann andere Tische.
+
+Wenn es klappt, haben wir eine Taschentaverne, die den PC nicht anlassen muss. Wenn nicht, bleibt wenigstens ein schräger Abend und ein paar ASCII-Karten. So oder so: der Ritter bleibt auf der Schachtel, die Kinder bleiben bei Telegram, und der Erwachsene muss einem Zwölfjährigen um 22:17 weder Steam *noch* `systemd` erklären.
+
+**Eigenen Tisch aufmachen?** Das Langweilige (aber Nötige) steht in **[SETUP.md](SETUP.md)**.
 
 Starte **nicht** diese Schleife und `grokgame`s `getUpdates` gleichzeitig mit dem **selben** Token. Telegram wählt Favoriten; der andere heult `409 Conflict`.
 

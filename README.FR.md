@@ -6,26 +6,31 @@
 
 Règles de la table : [docs/SAFETY.md](docs/SAFETY.md).
 
-Entre, accroche ton manteau. La taverne est un **groupe Telegram**. Le MJ est un **Agent Bot Grok** qui vit sur **sa propre VM** — pas sur ton laptop, pas sous le bureau à côté du Pentium qui sent encore 1996.
+C’est une expérience avec une idée ridicule et une excuse adorable — un **fork de [grokgame](https://github.com/antonio-castellon/grokgame)** pour que le Desktop PC puisse enfin aller se coucher.
 
-Frère errant de [grokgame](https://github.com/antonio-castellon/grokgame).  
-`grokgame` = la table **sur ton PC**.  
-`grok2telegram` = le même tuyau `/cmd` **sans serveur à la maison et sans `XAI_API_KEY`**.
+**Un agent peut-il être le maître du donjon ?** Pas un moteur de règles de 400 pages d’errata. Un cerveau. Ce soir, il mène une chasse au dragon. Demain, il sert le 21. Samedi, il devient un Parchís particulièrement rancunier. Le même groupe, les mêmes copains, une autre table.
 
-Tu amènes les amis. Mesa amène les dés, les cartes ASCII et un timing suspect.
+Le canal, c’est **Telegram**, exprès. Les enfants l’ont déjà. Les parents aussi. Personne n’a à installer *Yet Another Game Client 3.2 (bêta)* ni à créer un compte `xXSorcierSombre2009Xx`. Si le téléphone sait écrire dans un groupe, il a déjà une chaise à cette table.
 
----
+C’est le vieil internet qui se faufile par une porte moderne. Avant que les cartes graphiques n’aient plus de ventilateurs qu’un stade, on jouait sur des **BBS**, des donjons ASCII et des MUD où un dragon tenait en trois caractères de feu et beaucoup d’imagination :
 
-## Pourquoi ça existe ?
+```
+  /\
+ /  \    "Tu entends des dés dans le noir."
+< DM >
+ \  /
+  \/
+```
 
-Parce que quelqu’un a dit : *« On peut jouer pour de vrai dans Telegram sans que je nounoute un process sur le Desktop PC ? »*
+La même énergie. Tu tapes une commande. Tu reçois une histoire. Vous vous disputez pour savoir si l’orc avait vraiment une ligne de vue. Le tapis, c’est un chat ; le maître, c’est Grok.
 
-Oui.
+La première table, je l’ai faite **pour le fun, pour mon fils**, pour qu’il embarque ses amis sans livre de règles, sans boutique, sans « 40 Go minimum ». Un groupe. Un bot. Un adulte tape `/cmd new-game …` en langage humain. Grok invente le reste.
 
-- Les joueurs tapent dans le groupe comme dans un door game BBS.
-- Un **bridge** Python mince long-poll (`getUpdates`) et répond en cartes BBS HTML `<pre>`.
-- Ce qui demande un vrai cerveau de MJ va dans une **inbox**. **Mesa** se réveille, narre, invente des verbes, envoie un `say`.
-- Le laptop **n’est pas** sur le chemin. Pas de ports entrants. L’Agent *est* celui qui parle.
+**Ce fork est le second défi :** peut-on faire ça **sans nounouter un process Python sur le Desktop PC** ? Ici le tuyau `/cmd` vit sur la **VM de l’Agent Bot**. Pas de serveur à la maison. Pas de `XAI_API_KEY`. Si un agent peut être MJ ce soir, il peut être quizmaster demain, moniteur de colo, démon des devoirs, conteur de famille — les jeux d’abord, d’autres tables ensuite.
+
+Si ça marche, on a une taverne de poche qui n’a pas besoin du PC allumé. Sinon, on a quand même une soirée bizarre et des cartes ASCII. Dans les deux cas : le chevalier reste sur la boîte, les enfants restent sur Telegram, et l’adulte n’a pas à expliquer Steam *ni* `systemd` à un gamin de douze ans à 22 h 17.
+
+**Envie d’ouvrir ta propre table ?** Le mode d’emploi (nécessairement ennuyeux) est dans **[SETUP.md](SETUP.md)**.
 
 Ne lance **pas** cette boucle et le `getUpdates` de `grokgame` en même temps sur le **même** token. Telegram choisit un favori ; l’autre pleure `409 Conflict`.
 
