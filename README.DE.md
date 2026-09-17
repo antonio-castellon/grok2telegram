@@ -4,7 +4,7 @@
 
 # grok2telegram
 
-**Sicherheit:** nur öffentlicher Tisch — keine echten Secrets, kein Porno. Siehe [docs/SAFETY.md](docs/SAFETY.md).
+Tischregeln: [docs/SAFETY.md](docs/SAFETY.md).
 
 Komm rein, häng den Mantel auf. Die Taverne ist eine **Telegram-Gruppe**. Der Spielleiter ist ein **Grok Agent Bot** auf **seiner eigenen VM** — nicht auf deinem Laptop, nicht unter dem Schreibtisch neben dem Pentium, der noch nach 1996 riecht.
 
@@ -18,7 +18,7 @@ Du bringst Freunde. Mesa bringt Würfel, ASCII-Karten und verdächtig gutes Timi
 
 ## Wozu das Ganze?
 
-Weil jemand sagte: *„Können wir richtig am Telegram-Tisch spielen, ohne dass ich einen Prozess auf dem Yoga babysitte?“*
+Weil jemand sagte: *„Können wir richtig am Telegram-Tisch spielen, ohne dass ich einen Prozess auf dem Desktop PC babysitte?“*
 
 Ja.
 

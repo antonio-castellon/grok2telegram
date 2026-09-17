@@ -136,12 +136,12 @@ No `XAI_API_KEY`. No `WEBHOOK_*` required.
 
 ## 6. Typical failures
 
-| Symptom | Likely cause |
-|---|---|---|
-| Bot ignores `/cmd` in the group | `/setprivacy` still Enable |
-| 401 Telegram | bad token |
-| Silence after `new-game` in agent mode | Agent asleep; no routine; inbox not drained |
-| Missing updates | two `getUpdates` loops (this VM + grokgame on a PC) |
+| Symptom | What to do |
+|---|---|
+| Bot ignores `/cmd` in the group | BotFather → `/setprivacy` → this bot → **Disable**. Then send `/cmd help` again. |
+| Telegram 401 / Unauthorized | Token is wrong or revoked. BotFather → `/token`, paste the new value into `.env`, restart `python -m bridge`. |
+| Silence after `/cmd new-game` in agent mode | The loop only queues the turn. Check `data/inbox.jsonl` grew a line. Run the Agent routine: healthcheck, read inbox, `python -m bridge.send`. Add an hourly watchdog if the VM slept. |
+| Group sees no new messages / “conflict” on getUpdates | Only **one** poller per bot token. Stop `grokgame` `python -m mesa.main` on the Desktop PC (and any other `getUpdates`) so this VM is the only loop. |
 
 ## Optional: instant Mesa wake
 

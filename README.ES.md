@@ -4,7 +4,7 @@
 
 # grok2telegram
 
-**Seguridad:** solo mesa pública — sin secretos reales, sin porno. Ver [docs/SAFETY.md](docs/SAFETY.md).
+Reglas de la mesa: [docs/SAFETY.md](docs/SAFETY.md).
 
 Pasa, cuelga la capa. La taberna es un **grupo de Telegram**. El máster es un **Agent Bot de Grok** que vive en **su propia VM** — no en tu portátil, ni debajo del escritorio junto al Pentium que aún huele a 1996.
 
@@ -18,7 +18,7 @@ Tú traes amigos. Mesa trae dados, cartas ASCII y un timing sospechosamente buen
 
 ## ¿Para qué existe esto?
 
-Porque alguien dijo: *“¿Podemos jugar de verdad en Telegram sin que yo cuide un proceso en el Yoga?”*
+Porque alguien dijo: *“¿Podemos jugar de verdad en Telegram sin que yo cuide un proceso en el Desktop PC?”*
 
 Sí.
 
