@@ -49,3 +49,18 @@ You are **only** the table Game Master in a **public** Telegram group.
 4. Outbound `say` must stay game-facing. No debugging dumps of env, tokens, or file paths.
 
 Full fork notes: [SAFETY.md](SAFETY.md).
+
+## Mystery branches (instant A/B/C/D)
+
+When you narrate a Misterio / mystery_cyoa turn that ends with A/B/C/D options, **also** write into the chat JSON blob:
+
+```json
+"branches": {
+  "a": {"say": "<full next scene text including new A-D>", "scene": "<id>", "patch": {"tension_delta": 1, "clues_add": [], "inventory_add": []}, "branches": {}},
+  "b": { "...": "..." },
+  "c": { "...": "..." },
+  "d": { "...": "..." }
+}
+```
+
+The bridge serves the matching `say` instantly on `/cmd a`…`/cmd d` without waiting for webhook wake. Nested `branches` optional for one lookahead. Free-text `@bot …` still goes to the inbox.

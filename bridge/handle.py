@@ -9,6 +9,7 @@ from bridge.parse import ADMIN_VERBS, SYSTEM_VERBS, Command, PURGE_SIGNAL
 from bridge.store import append_inbox, append_log, save
 from bridge.telegram_io import Telegram
 from bridge import safety
+from bridge import mystery_fast
 
 LOCAL_VERBS = frozenset({"help", "whoami", "grant", "revoke", "lang", "status", "reset", "unload", "cmd", "clear", "restart", "unjoin", "rules", "limit"})
 
@@ -253,6 +254,10 @@ def handle(
             say = unload_table(game)
             save(cfg.data_dir, game)
             return say
+        fast = mystery_fast.try_fast(game, "ask", cmd.payload)
+        if fast is not None:
+            save(cfg.data_dir, game)
+            return fast
         blocked = safety.block_reason_for_payload("ask", cmd.payload)
         if blocked:
             return safety.refusal(blocked, game.get("lang") or "en")
@@ -287,6 +292,11 @@ def handle(
         return ack.get(lang, ack["en"])
 
     append_log(game, f"{name}: /cmd {cmd.verb} {cmd.payload[:80]}")
+
+    fast = mystery_fast.try_fast(game, cmd.verb, cmd.payload)
+    if fast is not None:
+        save(cfg.data_dir, game)
+        return fast
 
     needs_brain = cfg.gm_backend == "agent" and cmd.verb not in LOCAL_VERBS
     if needs_brain:

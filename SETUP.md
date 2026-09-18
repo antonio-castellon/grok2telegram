@@ -148,3 +148,14 @@ No `XAI_API_KEY`. No `WEBHOOK_*` required.
 For RPG nights, set `MESA_WAKE_URL` and `MESA_WAKE_KEY` in `.env` (see `.env.example`).
 The bridge POSTs on every inbox append. Never commit the key.
 
+
+
+### Instant Mesa wake (webhook)
+
+The bridge POSTs to `MESA_WAKE_URL` with `Authorization: Bearer <MESA_WAKE_KEY>` whenever it queues an inbox item.
+
+- URL must be the routine **POST to** value (often `https://api2.cursor.sh/automations/webhook/<id>`).
+- Key must start with **`crsr_`** (not `whsec_`). Copy it from the Mesa routine panel after saving a webhook trigger.
+- HTTP 200 = Mesa run started. 401 = bad key. 400 = routine disabled or wrong host.
+
+Fallback: the `Mesa bridge drain` routine every 5 minutes. For Misterio, pre-baked `blob.branches` make A/B/C/D instant even if wake fails.
