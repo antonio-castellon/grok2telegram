@@ -10,7 +10,7 @@ from bridge.store import append_inbox, append_log, save
 from bridge.telegram_io import Telegram
 from bridge import safety
 
-LOCAL_VERBS = frozenset({"help", "whoami", "grant", "revoke", "lang", "status", "reset", "cmd", "clear", "restart", "unjoin", "rules", "limit"})
+LOCAL_VERBS = frozenset({"help", "whoami", "grant", "revoke", "lang", "status", "reset", "unload", "cmd", "clear", "restart", "unjoin", "rules", "limit"})
 
 def _strip_player_runtime(players: dict) -> dict:
     """Keep seat identity; drop hands/scores/results."""
@@ -78,6 +78,37 @@ def restart_table(game: dict[str, Any]) -> str:
         "en": "Restart. Same table, scores cleared. /cmd join if seats are empty.",
         "fr": "Relance. Même table, scores à zéro. /cmd join si besoin.",
         "de": "Neustart. Gleiche Runde, Punkte weg. /cmd join falls nötig.",
+    }
+    return msg.get(lang, msg["en"])
+
+
+def unload_table(game: dict[str, Any]) -> str:
+    """Discard the current game; keep lang/admins; wait for /cmd new-game."""
+    lang = game.get("lang") or "es"
+    keep_admins = list(game.get("admins") or [])
+    chat_id = game.get("chat_id")
+    game.clear()
+    game.update(
+        {
+            "chat_id": chat_id,
+            "lang": lang,
+            "phase": "lobby",
+            "title": "",
+            "brief": "",
+            "rules": [],
+            "limits": [],
+            "commands": [],
+            "admins": keep_admins,
+            "players": {},
+            "blob": {},
+            "log": [],
+        }
+    )
+    msg = {
+        "es": "Partida descargada. Mesa vacía — espera /cmd new-game …",
+        "en": "Game unloaded. Empty table — waiting for /cmd new-game …",
+        "fr": "Partie déchargée. Table vide — en attente de /cmd new-game …",
+        "de": "Spiel entladen. Leerer Tisch — warte auf /cmd new-game …",
     }
     return msg.get(lang, msg["en"])
 
@@ -177,6 +208,13 @@ def handle(
         save(cfg.data_dir, game)
         return say
 
+    if cmd.verb == "unload":
+        if not admin:
+            return "solo admin."
+        say = unload_table(game)
+        save(cfg.data_dir, game)
+        return say
+
     if cmd.verb in ADMIN_VERBS and not admin:
         return "solo admin."
 
@@ -208,6 +246,13 @@ def handle(
 
     if cmd.verb == "ask":
         append_log(game, f"{name}: @bot {cmd.payload[:120]}")
+        ask_low = (cmd.payload or "").strip().lower()
+        if ask_low in {"unload", "end-game", "end game", "fin partida", "cerrar juego"}:
+            if not admin:
+                return "solo admin."
+            say = unload_table(game)
+            save(cfg.data_dir, game)
+            return say
         blocked = safety.block_reason_for_payload("ask", cmd.payload)
         if blocked:
             return safety.refusal(blocked, game.get("lang") or "en")

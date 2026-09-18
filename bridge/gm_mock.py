@@ -8,7 +8,7 @@ HELP = {
         "/cmd <verbo> [texto]\n"
         "@bot <verbo> [texto]\n"
         "@bot <texto libre> → hablas con el GM de la mesa\n"
-        "Sistema: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\n"
+        "Sistema: help lang new-game rules limit cmd list status reset unload restart unjoin whoami grant revoke clear\n"
         "Detalle: /cmd help <verbo> | /cmd help extended"
     ),
     "en": (
@@ -16,7 +16,7 @@ HELP = {
         "/cmd <verb> [text]\n"
         "@bot <verb> [text]\n"
         "@bot <free text> → talk to the table GM\n"
-        "System: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\n"
+        "System: help lang new-game rules limit cmd list status reset unload restart unjoin whoami grant revoke clear\n"
         "Detail: /cmd help <verb> | /cmd help extended"
     ),
     "fr": (
@@ -24,7 +24,7 @@ HELP = {
         "/cmd <verbe> [texte]\n"
         "@bot <verbe> [texte]\n"
         "@bot <texte libre> → tu parles au GM de la table\n"
-        "Système : help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\n"
+        "Système : help lang new-game rules limit cmd list status reset unload restart unjoin whoami grant revoke clear\n"
         "Détail : /cmd help <verbe> | /cmd help extended"
     ),
     "de": (
@@ -32,7 +32,7 @@ HELP = {
         "/cmd <verb> [text]\n"
         "@bot <verb> [text]\n"
         "@bot <freier Text> → du sprichst mit dem Tisch-GM\n"
-        "System: help lang new-game rules limit cmd list status reset restart unjoin whoami grant revoke clear\n"
+        "System: help lang new-game rules limit cmd list status reset unload restart unjoin whoami grant revoke clear\n"
         "Detail: /cmd help <verb> | /cmd help extended"
     ),
 }
@@ -162,6 +162,7 @@ VERB_SHORT: dict[str, dict[str, str]] = {
     "limit": {"es": "ver/añadir límites", "en": "show/add limits", "fr": "voir/ajouter limites", "de": "Limits zeigen/add"},
     "cmd": {"es": "listar verbos", "en": "list verbs", "fr": "lister verbes", "de": "Verben listen"},
     "status": {"es": "estado de la mesa", "en": "table status", "fr": "état de la table", "de": "Tisch-Status"},
+    "unload": {"es": "admin: tira partida", "en": "admin: unload game", "fr": "admin: décharge partie", "de": "Admin: Spiel weg"},
     "reset": {"es": "admin: cierra mesa", "en": "admin: close table", "fr": "admin: ferme table", "de": "Admin: Runde zu"},
     "restart": {"es": "admin: reinicia ronda", "en": "admin: restart round", "fr": "admin: relance", "de": "Admin: Neustart"},
     "unjoin": {"es": "salir; salta turno", "en": "leave; skip turn", "fr": "partir; saute tour", "de": "gehen; Zug skip"},
@@ -294,7 +295,7 @@ def apply_mock(game: dict[str, Any], verb: str, payload: str, lang: str) -> str:
             game.setdefault("limits", []).append(payload)
         return "limits: " + " | ".join(game.get("limits") or ["—"])
     if verb == "cmd" and payload.split()[:1] == ["list"]:
-        sys_ = "help lang new-game rules limit cmd status reset restart unjoin whoami grant revoke clear"
+        sys_ = "help lang new-game rules limit cmd status reset unload restart unjoin whoami grant revoke clear"
         game_ = " ".join(c["verb"] for c in game.get("commands") or [])
         return f"sistema: {sys_}\njuego: {game_ or '(nada: /cmd new-game …)'}"
     if verb == "status":
@@ -317,6 +318,29 @@ def apply_mock(game: dict[str, Any], verb: str, payload: str, lang: str) -> str:
             f"{joined}\n"
             f"rules={game.get('rules')}\nlimits={game.get('limits')}"
         )
+    if verb == "unload":
+        keep_lang = game.get("lang") or "es"
+        keep_admins = list(game.get("admins") or [])
+        cid = game.get("chat_id")
+        game.clear()
+        game.update({
+            "chat_id": cid,
+            "lang": keep_lang,
+            "phase": "lobby",
+            "title": "",
+            "brief": "",
+            "rules": [],
+            "limits": [],
+            "commands": [],
+            "admins": keep_admins,
+            "players": {},
+            "blob": {},
+            "log": [],
+        })
+        return {
+            "es": "Partida descargada. Mesa vacía — espera /cmd new-game …",
+            "en": "Game unloaded. Empty table — waiting for /cmd new-game …",
+        }.get(keep_lang, "Game unloaded. Empty table — waiting for /cmd new-game …")
     if verb == "reset":
         keep_lang = game.get("lang") or "es"
         game.clear()

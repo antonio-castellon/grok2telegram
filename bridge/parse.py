@@ -20,11 +20,12 @@ SYSTEM_VERBS = frozenset(
         "clear",
         "restart",
         "unjoin",
+        "unload",
         "ask",  # free-form @bot chat → Agent
     }
 )
 ADMIN_VERBS = frozenset(
-    {"lang", "new-game", "rules", "limit", "reset", "grant", "revoke", "clear", "restart"}
+    {"lang", "new-game", "rules", "limit", "reset", "unload", "grant", "revoke", "clear", "restart"}
 )
 PURGE_SIGNAL = "__PURGE_ALL__"
 

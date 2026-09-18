@@ -33,7 +33,9 @@ def empty(chat_id: int) -> dict[str, Any]:
 def load(data_dir: Path, chat_id: int) -> dict[str, Any]:
     p = _path(data_dir, chat_id)
     if p.exists():
-        return json.loads(p.read_text(encoding="utf-8"))
+        game = json.loads(p.read_text(encoding="utf-8"))
+        game["chat_id"] = int(chat_id)
+        return game
     return empty(chat_id)
 
 
