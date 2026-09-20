@@ -183,3 +183,20 @@ def claim_message_tap(
         data = dict(items[-_CLAIM_MAX:])
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     return True
+
+
+def label_from_callback_message(msg: dict[str, Any], callback_data: str) -> str | None:
+    """Best-effort label from the tapped message's inline keyboard."""
+    raw = (callback_data or "").strip()
+    markup = (msg or {}).get("reply_markup") or {}
+    rows = markup.get("inline_keyboard") or []
+    for row in rows:
+        if not isinstance(row, list):
+            continue
+        for btn in row:
+            if not isinstance(btn, dict):
+                continue
+            if str(btn.get("callback_data") or "") == raw:
+                text = str(btn.get("text") or "").strip()
+                return text or None
+    return None

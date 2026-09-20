@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from bridge.admin import is_admin
-from bridge.buttons import claim_message_tap, resolve_callback_data
+from bridge.buttons import claim_message_tap, label_from_callback_message, resolve_callback_data
 from bridge.config import load_config
 from bridge.handle import handle
 from bridge.parse import PURGE_SIGNAL, parse_text
@@ -268,6 +268,13 @@ def _handle_callback(
             tg.edit_message_reply_markup(chat_id, int(mid), reply_markup={})
         except Exception as exc:
             log.debug("editMessageReplyMarkup: %s", exc)
+
+    # Story thread: show who picked what (label from keyboard, else verb id)
+    label = label_from_callback_message(msg, raw_data) or verb
+    try:
+        tg.send_message(chat_id, f"{name}: {label}")
+    except Exception as exc:
+        log.warning("selection say: %s", exc)
 
     log.info("callback tap chat=%s uid=%s name=%s verb=%s mid=%s", chat_id, uid, name, verb, mid)
 
