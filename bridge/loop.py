@@ -5,12 +5,15 @@ import logging
 import os
 import time
 from pathlib import Path
+from typing import Any
 
+from bridge.admin import is_admin
+from bridge.buttons import resolve_callback_data
 from bridge.config import load_config
 from bridge.handle import handle
 from bridge.parse import PURGE_SIGNAL, parse_text
 from bridge.purge import bot_can_delete, purge_upto
-from bridge.store import load
+from bridge.store import append_inbox, append_log, load, save
 from bridge.telegram_io import Telegram
 from bridge.inbox_flush import flush_pending
 
@@ -134,6 +137,92 @@ def _execute_purge(
         _save_seen(data_dir, chat_id, {mid})
 
 
+def _table_snapshot(game: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "phase": game.get("phase"),
+        "title": game.get("title"),
+        "brief": game.get("brief"),
+        "rules": game.get("rules"),
+        "limits": game.get("limits"),
+        "commands": game.get("commands"),
+        "blob": game.get("blob"),
+    }
+
+
+def _handle_callback(
+    cfg: Any,
+    tg: Telegram,
+    cq: dict[str, Any],
+) -> None:
+    """Answer tap, strip keyboard, enqueue mesa.v1 inbox item, wake via append_inbox."""
+    cq_id = str(cq.get("id") or "")
+    user = cq.get("from") or {}
+    msg = cq.get("message") or {}
+    chat = msg.get("chat") or {}
+    chat_id = chat.get("id")
+    if chat_id is None:
+        if cq_id:
+            try:
+                tg.answer_callback_query(cq_id)
+            except Exception:
+                pass
+        return
+    chat_id = int(chat_id)
+    if cfg.allowed_chat_ids and chat_id not in cfg.allowed_chat_ids:
+        if cq_id:
+            try:
+                tg.answer_callback_query(cq_id)
+            except Exception:
+                pass
+        return
+
+    uid = int(user.get("id") or 0)
+    name = user.get("first_name") or user.get("username") or "?"
+    raw_data = str(cq.get("data") or "")
+    button_id = resolve_callback_data(cfg.data_dir, chat_id, raw_data)
+
+    # Acknowledge immediately so Telegram stops the loading spinner
+    if cq_id:
+        try:
+            tg.answer_callback_query(cq_id)
+        except Exception as exc:
+            log.warning("answerCallbackQuery: %s", exc)
+
+    # Prefer stripping reply_markup after first tap (avoid double-tap chaos)
+    mid = msg.get("message_id")
+    if mid is not None:
+        try:
+            tg.edit_message_reply_markup(chat_id, int(mid), reply_markup={})
+        except Exception as exc:
+            log.debug("editMessageReplyMarkup: %s", exc)
+
+    game = load(cfg.data_dir, chat_id)
+    game["chat_id"] = chat_id
+    admin = is_admin(cfg, tg, chat_id, uid, game)
+
+    # verb = button id when non-empty; else generic tap + payload
+    verb = (button_id or "").strip() or "tap"
+    payload = "" if verb != "tap" else (button_id or raw_data)
+    # If agent used a bare id as verb, keep payload empty (same as /cmd <verb>).
+    # For opaque/long ids that were mapped, verb is still the resolved id.
+
+    append_log(game, f"{name}: tap {verb}"[:200])
+    append_inbox(
+        cfg.data_dir,
+        {
+            "schema": "mesa.v1",
+            "chat_id": chat_id,
+            "user": {"id": uid, "name": name, "is_admin": admin},
+            "lang": game.get("lang") or "es",
+            "verb": verb,
+            "payload": payload,
+            "source": "callback_query",
+            "table": _table_snapshot(game),
+        },
+    )
+    save(cfg.data_dir, game)
+
+
 def run() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     cfg = load_config()
@@ -165,6 +254,15 @@ def run() -> None:
         for upd in updates:
             offset = int(upd["update_id"]) + 1
             _write_offset(cfg.data_dir, offset)
+
+            cq = upd.get("callback_query")
+            if cq:
+                try:
+                    _handle_callback(cfg, tg, cq)
+                except Exception as exc:
+                    log.warning("callback_query: %s", exc)
+                continue
+
             msg = upd.get("message") or {}
             chat = msg.get("chat") or {}
             chat_id = chat.get("id")

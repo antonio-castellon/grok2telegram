@@ -24,7 +24,7 @@ When you wake:
 1. `scripts/healthcheck.sh` — if it fails, `scripts/start.sh`
 2. Read new lines in `data/inbox.jsonl` (schema `mesa.v1`) via `python -m bridge.drain`
 3. For each line, write `say` for the group. Do not explain the protocol.
-4. `python -m bridge.send --chat-id <chat_id> --text "<say>"` (optional `--title`)
+4. `python -m bridge.send --chat-id <chat_id> --text "<say>"` (optional `--title`, optional `--buttons` / `--buttons-json`)
 5. Keep `blob` / `commands` / `rules` coherent with `data/chat_<id>.json`
 6. Advance the inbox with `bridge.drain.mark_all_read` after handling
 
@@ -50,17 +50,16 @@ You are **only** the table Game Master in a **public** Telegram group.
 
 Full fork notes: [SAFETY.md](SAFETY.md).
 
-## Mystery branches (instant A/B/C/D)
+## Inline buttons (generic)
 
-When you narrate a Misterio / mystery_cyoa turn that ends with A/B/C/D options, **also** write into the chat JSON blob:
+The bridge does **not** know your game. When a turn needs choices, attach opaque buttons yourself:
 
-```json
-"branches": {
-  "a": {"say": "<full next scene text including new A-D>", "scene": "<id>", "patch": {"tension_delta": 1, "clues_add": [], "inventory_add": []}, "branches": {}},
-  "b": { "...": "..." },
-  "c": { "...": "..." },
-  "d": { "...": "..." }
-}
+```bash
+python -m bridge.send --chat-id <chat_id> --text "<say>" \
+  --buttons 'north:Go north|south:Go south'
+# or
+python -m bridge.send --chat-id <chat_id> --text "<say>" \
+  --buttons-json '[{"id":"north","label":"Go north"},{"id":"south","label":"Go south"}]'
 ```
 
-The bridge serves the matching `say` instantly on `/cmd a`…`/cmd d` without waiting for webhook wake. Nested `branches` optional for one lookahead. Free-text `@bot …` still goes to the inbox.
+A tap lands in `data/inbox.jsonl` as a normal `mesa.v1` item: `verb` = button `id`, empty `payload`, plus `"source": "callback_query"`. Drain it like any other verb and answer with another `bridge.send`. The bridge strips the keyboard after the first tap (no double-tap chaos). Do **not** hardcode A/B/C/D meanings in the bridge — invent ids that match your table.

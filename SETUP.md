@@ -96,7 +96,7 @@ Start again. Commands that need a brain go to `data/inbox.jsonl`. On each Agent 
 1. `scripts/healthcheck.sh` or `scripts/start.sh`
 2. Read new lines in `data/inbox.jsonl`
 3. Invent `say` in `lang`
-4. `python -m bridge.send --chat-id <id> --text "<say>"`
+4. `python -m bridge.send --chat-id <id> --text "<say>"` (optional `--buttons 'id:Label|…'`)
 
 Give the Agent an hourly routine that does those four steps. The VM is not a promised 24/7 VPS; the routine is the watchdog.
 
@@ -158,4 +158,8 @@ The bridge POSTs to `MESA_WAKE_URL` with `Authorization: Bearer <MESA_WAKE_KEY>`
 - Key must start with **`crsr_`** (not `whsec_`). Copy it from the Mesa routine panel after saving a webhook trigger.
 - HTTP 200 = Mesa run started. 401 = bad key. 400 = routine disabled or wrong host.
 
-Fallback: the `Mesa bridge drain` routine every 5 minutes. For Misterio, pre-baked `blob.branches` make A/B/C/D instant even if wake fails.
+Fallback: the `Mesa bridge drain` routine every 5 minutes.
+
+### Generic inline buttons
+
+The bridge is thin: no game logic (no Misterio / 21 / mode branches). Mesa attaches choices via `bridge.send --buttons` or `--buttons-json`; taps enqueue inbox items for Mesa to drain.

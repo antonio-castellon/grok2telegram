@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import httpx
 
 from bridge.bbs import bbs_frame
+from bridge.buttons import build_inline_keyboard
 from bridge.safety import scrub_outbound
 
 API = "https://api.telegram.org"
@@ -17,7 +19,10 @@ class Telegram:
         self._base = f"{API}/bot{token}"
 
     def get_updates(self, offset: int | None = None) -> list[dict[str, Any]]:
-        params: dict[str, Any] = {"timeout": 30, "allowed_updates": ["message"]}
+        params: dict[str, Any] = {
+            "timeout": 30,
+            "allowed_updates": ["message", "callback_query"],
+        }
         if offset is not None:
             params["offset"] = offset
         with httpx.Client(timeout=self.timeout) as client:
@@ -28,21 +33,30 @@ class Telegram:
             raise RuntimeError(data)
         return list(data.get("result") or [])
 
-    def send_message(self, chat_id: int, text: str, title: str | None = None) -> int | None:
+    def send_message(
+        self,
+        chat_id: int,
+        text: str,
+        title: str | None = None,
+        buttons: list[dict[str, str]] | None = None,
+        data_dir: Path | None = None,
+    ) -> int | None:
         if not text:
             return None
         text = scrub_outbound(text)
         html = bbs_frame(text, title=title)
         chunk = html[:3900]
-        with httpx.Client(timeout=30) as client:
-            r = client.post(
-                f"{self._base}/sendMessage",
-                json={
-                    "chat_id": chat_id,
-                    "text": chunk,
-                    "parse_mode": "HTML",
-                },
+        body: dict[str, Any] = {
+            "chat_id": chat_id,
+            "text": chunk,
+            "parse_mode": "HTML",
+        }
+        if buttons:
+            body["reply_markup"] = build_inline_keyboard(
+                buttons, chat_id=int(chat_id), data_dir=data_dir
             )
+        with httpx.Client(timeout=30) as client:
+            r = client.post(f"{self._base}/sendMessage", json=body)
             r.raise_for_status()
             data = r.json()
         if not data.get("ok"):
@@ -50,6 +64,41 @@ class Telegram:
         result = data.get("result") or {}
         mid = result.get("message_id")
         return int(mid) if mid is not None else None
+
+    def answer_callback_query(
+        self, callback_query_id: str, text: str | None = None
+    ) -> None:
+        body: dict[str, Any] = {"callback_query_id": callback_query_id}
+        if text:
+            body["text"] = text[:200]
+        with httpx.Client(timeout=30) as client:
+            r = client.post(f"{self._base}/answerCallbackQuery", json=body)
+            r.raise_for_status()
+            data = r.json()
+        if not data.get("ok"):
+            raise RuntimeError(data.get("description") or data)
+
+    def edit_message_reply_markup(
+        self,
+        chat_id: int,
+        message_id: int,
+        reply_markup: dict[str, Any] | None = None,
+    ) -> None:
+        """Strip or replace inline keyboard. None / empty → remove markup."""
+        body: dict[str, Any] = {
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "reply_markup": reply_markup if reply_markup is not None else {},
+        }
+        with httpx.Client(timeout=30) as client:
+            r = client.post(f"{self._base}/editMessageReplyMarkup", json=body)
+            data = r.json()
+        if not data.get("ok"):
+            # Message may already lack markup; ignore benign failures
+            desc = str(data.get("description") or "")
+            if "message is not modified" in desc.lower():
+                return
+            raise RuntimeError(data.get("description") or data)
 
     def delete_message(self, chat_id: int, message_id: int) -> None:
         with httpx.Client(timeout=30) as client:

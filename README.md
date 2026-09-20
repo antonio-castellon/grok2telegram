@@ -70,7 +70,7 @@ Do **not** run this loop and `grokgame`’s `getUpdates` on the **same bot token
 | **Inbox** | Parking lot for verbs that need a brain (`new-game`, free `@bot` chat, game verbs Mesa invented). Ack: “Te leo…” | Queue |
 | **Mesa** | Read the queue, speak in `table.lang`, keep `chat_*.json` honest, never explain the protocol in the group. | On wake (webhook if wired; else ~5 min safety net) |
 
-The bridge stays **thin on purpose**. It teaches commands and flips light switches. It does **not** pretend to understand “it’s your turn, draw a card” — that’s Mesa’s job. (We tried. The bridge got cocky. The caballero of oros remembers.)
+The bridge stays **thin on purpose**. It teaches commands and flips light switches. It does **not** pretend to understand “it’s your turn, draw a card” — that’s Mesa’s job. (We tried. The bridge got cocky. The caballero of oros remembers.) Choices are generic inline buttons: Mesa calls `bridge.send --buttons`; taps land in the inbox. No Misterio / 21 / `blob.mode` branches in the bridge.
 
 ---
 
@@ -150,7 +150,7 @@ The bridge POSTs on every `append_inbox`. Without it, the scheduled drain is the
 ## Files that matter
 
 ```
-bridge/          # the pipe (parse, handle, loop, skin, send, drain, wake)
+bridge/          # the pipe (parse, handle, loop, skin, send, buttons, drain, wake)
 data/            # chat_*.json, inbox.jsonl, pid  (gitignored secrets stay in .env)
 scripts/         # start.sh, healthcheck.sh
 docs/AGENT.md    # paste-facing GM doctrine
