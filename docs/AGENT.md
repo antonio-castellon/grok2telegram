@@ -83,8 +83,9 @@ The bridge **always** POSTs the wake webhook (no Mesa-behaviour logic there).
 
 After a wake, stay in the turn ~2 minutes when the table is active:
 
-1. If `python -m bridge.hot_cli status` already shows hot with remaining time: **another linger turn is already listening** — stay completely silent and exit (do not drain, do not clear hot).
-2. Otherwise `python -m bridge.hot_cli start 120`.
+1. Always `python -m bridge.drain` first. If pending > 0, you **must** handle it (never silent-exit while work waits).
+2. Hot status: if already hot AND pending == 0, stay silent and exit (duplicate empty wake).
+3. Otherwise `python -m bridge.hot_cli start 120` (or extend if already hot while handling).
 3. Handle pending (announce + scene).
 4. Loop up to ~24 times: sleep 5s, `python -m bridge.drain`; if pending > 0, handle again and `python -m bridge.hot_cli extend 120`.
 5. `python -m bridge.hot_cli clear` before exiting.

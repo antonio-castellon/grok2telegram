@@ -57,6 +57,14 @@ def mark_all_read(data_dir: Path) -> int:
     return n
 
 
+def mark_read_through(data_dir: Path, absolute_index: int) -> int:
+    """Advance offset to absolute_index (0-based exclusive end), never backwards."""
+    cur = read_offset(data_dir)
+    target = max(cur, int(absolute_index))
+    write_offset(data_dir, target)
+    return target
+
+
 def main() -> None:
     cfg = load_config()
     rows = pending(cfg.data_dir)
