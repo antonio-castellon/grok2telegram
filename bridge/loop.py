@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from bridge.admin import is_admin
-from bridge.buttons import resolve_callback_data
+from bridge.buttons import claim_message_tap, resolve_callback_data
 from bridge.config import load_config
 from bridge.handle import handle
 from bridge.parse import PURGE_SIGNAL, parse_text
@@ -224,37 +224,67 @@ def _handle_callback(
                 log.warning("answerCallbackQuery: %s", exc)
         return
 
+    verb = (button_id or "").strip() or "tap"
+    payload = "" if verb != "tap" else (button_id or raw_data)
+    mid = msg.get("message_id")
+
+    # One claim per message: double-taps must not enqueue a second identical choice
+    # that could be applied to a later turn.
+    if mid is not None:
+        claimed = claim_message_tap(
+            cfg.data_dir, chat_id, int(mid), verb=verb, uid=uid
+        )
+        if not claimed:
+            log.info(
+                "callback duplicate ignored chat=%s mid=%s uid=%s verb=%s",
+                chat_id,
+                mid,
+                uid,
+                verb,
+            )
+            if cq_id:
+                try:
+                    tg.answer_callback_query(
+                        cq_id,
+                        text={
+                            "es": "Ya elegiste en este menú",
+                            "en": "Already chosen on this menu",
+                            "fr": "Déjà choisi sur ce menu",
+                            "de": "In diesem Menü schon gewählt",
+                        }.get(lang, "Already chosen on this menu"),
+                    )
+                except Exception as exc:
+                    log.warning("answerCallbackQuery: %s", exc)
+            return
+
     if cq_id:
         try:
             tg.answer_callback_query(cq_id)
         except Exception as exc:
             log.warning("answerCallbackQuery: %s", exc)
 
-    mid = msg.get("message_id")
     if mid is not None:
         try:
             tg.edit_message_reply_markup(chat_id, int(mid), reply_markup={})
         except Exception as exc:
             log.debug("editMessageReplyMarkup: %s", exc)
 
-    verb = (button_id or "").strip() or "tap"
-    payload = "" if verb != "tap" else (button_id or raw_data)
-    log.info("callback tap chat=%s uid=%s name=%s verb=%s", chat_id, uid, name, verb)
+    log.info("callback tap chat=%s uid=%s name=%s verb=%s mid=%s", chat_id, uid, name, verb, mid)
 
     append_log(game, f"{name}: tap {verb}"[:200])
-    append_inbox(
-        cfg.data_dir,
-        {
-            "schema": "mesa.v1",
-            "chat_id": chat_id,
-            "user": {"id": uid, "name": name, "is_admin": admin},
-            "lang": game.get("lang") or "es",
-            "verb": verb,
-            "payload": payload,
-            "source": "callback_query",
-            "table": _table_snapshot(game),
-        },
-    )
+    item = {
+        "schema": "mesa.v1",
+        "chat_id": chat_id,
+        "user": {"id": uid, "name": name, "is_admin": admin},
+        "lang": game.get("lang") or "es",
+        "verb": verb,
+        "payload": payload,
+        "source": "callback_query",
+        "table": _table_snapshot(game),
+    }
+    if mid is not None:
+        item["message_id"] = int(mid)
+    append_inbox(cfg.data_dir, item)
     save(cfg.data_dir, game)
 
 

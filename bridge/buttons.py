@@ -147,3 +147,39 @@ def build_inline_keyboard(
     if row:
         rows.append(row)
     return {"inline_keyboard": rows}
+
+
+_CLAIM_NAME = "callback_claimed.json"
+_CLAIM_MAX = 500
+
+
+def _claim_path(data_dir: Path) -> Path:
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir / _CLAIM_NAME
+
+
+def claim_message_tap(
+    data_dir: Path,
+    chat_id: int,
+    message_id: int,
+    *,
+    verb: str,
+    uid: int,
+) -> bool:
+    """First tap on a message wins. Return True if claimed (enqueue); False if duplicate."""
+    path = _claim_path(data_dir)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except Exception:
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
+    key = f"{int(chat_id)}:{int(message_id)}"
+    if key in data:
+        return False
+    data[key] = {"verb": verb, "uid": int(uid), "ts": time.time()}
+    if len(data) > _CLAIM_MAX:
+        items = sorted(data.items(), key=lambda kv: float((kv[1] or {}).get("ts") or 0))
+        data = dict(items[-_CLAIM_MAX:])
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    return True
