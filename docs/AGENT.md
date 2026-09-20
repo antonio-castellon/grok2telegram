@@ -79,11 +79,14 @@ Inbox `table` is slim (phase/title/commands/blob) — it does **not** repeat the
 
 ## Hot linger (fast follow-up taps)
 
-After a webhook wake, stay in the turn ~2 minutes when the table is active:
+The bridge **always** POSTs the wake webhook (no Mesa-behaviour logic there).
 
-1. `python -m bridge.hot_cli start 120` at the beginning of the wake.
-2. Handle pending (announce + scene).
-3. Loop up to ~24 times: sleep 5s, `python -m bridge.drain`; if pending > 0, handle again and `python -m bridge.hot_cli extend 120`.
-4. `python -m bridge.hot_cli clear` before exiting.
+After a wake, stay in the turn ~2 minutes when the table is active:
 
-While hot, the bridge **skips** further wake POSTs (you already poll). First tap of a quiet table still pays cold-wake latency; taps inside the window should feel much faster.
+1. If `python -m bridge.hot_cli status` already shows hot with remaining time: **another linger turn is already listening** — stay completely silent and exit (do not drain, do not clear hot).
+2. Otherwise `python -m bridge.hot_cli start 120`.
+3. Handle pending (announce + scene).
+4. Loop up to ~24 times: sleep 5s, `python -m bridge.drain`; if pending > 0, handle again and `python -m bridge.hot_cli extend 120`.
+5. `python -m bridge.hot_cli clear` before exiting.
+
+Follow-up taps still enqueue + webhook; the live linger turn picks them up. Duplicate wakes during hot mode no-op on the agent side.

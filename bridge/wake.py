@@ -9,9 +9,6 @@ import threading
 
 import httpx
 
-from bridge.config import load_config
-from bridge.hot import is_hot
-
 log = logging.getLogger("g2t.wake")
 
 _UUID_RE = re.compile(
@@ -46,13 +43,6 @@ def wake_mesa(url: str | None = None, key: str | None = None) -> bool:
     if not url:
         log.debug("MESA_WAKE_URL unset — Mesa will drain on cron only")
         return False
-    try:
-        data_dir = load_config().data_dir
-        if is_hot(data_dir):
-            log.info("mesa wake skipped (hot session active)")
-            return True
-    except Exception as exc:
-        log.debug("hot check: %s", exc)
     if key.startswith("whsec_"):
         log.warning(
             "MESA_WAKE_KEY looks like whsec_ (signing secret). "
