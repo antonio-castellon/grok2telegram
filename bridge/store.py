@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from bridge.wake import wake_mesa
+from bridge.wake import wake_mesa_async
 
 
 def _path(data_dir: Path, chat_id: int) -> Path:
@@ -57,4 +57,4 @@ def append_inbox(data_dir: Path, payload: dict[str, Any]) -> None:
     with path.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(payload, ensure_ascii=False) + "\n")
     # Instant GM: ping Mesa webhook (no-op if MESA_WAKE_URL unset)
-    wake_mesa()
+    wake_mesa_async()

@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import re
+import threading
 
 import httpx
 
@@ -78,3 +79,13 @@ def wake_mesa(url: str | None = None, key: str | None = None) -> bool:
     except Exception as exc:
         log.warning("mesa wake failed: %s", exc)
         return False
+
+
+def wake_mesa_async(url: str | None = None, key: str | None = None) -> None:
+    """Fire webhook without blocking the Telegram poll loop."""
+    threading.Thread(
+        target=wake_mesa,
+        kwargs={"url": url, "key": key},
+        name="mesa-wake",
+        daemon=True,
+    ).start()

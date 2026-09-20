@@ -263,14 +263,7 @@ def _handle_callback(
         except Exception as exc:
             log.warning("answerCallbackQuery: %s", exc)
 
-    if mid is not None:
-        try:
-            tg.edit_message_reply_markup(chat_id, int(mid), reply_markup={})
-        except Exception as exc:
-            log.debug("editMessageReplyMarkup: %s", exc)
-
-    log.info("callback tap chat=%s uid=%s name=%s verb=%s mid=%s", chat_id, uid, name, verb, mid)
-
+    # Enqueue + wake FIRST (async) so Mesa starts before we strip the keyboard.
     append_log(game, f"{name}: tap {verb}"[:200])
     button_label = label_from_callback_message(msg, raw_data) or verb
     item = {
@@ -288,6 +281,13 @@ def _handle_callback(
         item["message_id"] = int(mid)
     append_inbox(cfg.data_dir, item)
     save(cfg.data_dir, game)
+    log.info("callback tap chat=%s uid=%s name=%s verb=%s mid=%s", chat_id, uid, name, verb, mid)
+
+    if mid is not None:
+        try:
+            tg.edit_message_reply_markup(chat_id, int(mid), reply_markup={})
+        except Exception as exc:
+            log.debug("editMessageReplyMarkup: %s", exc)
 
 
 def run() -> None:
