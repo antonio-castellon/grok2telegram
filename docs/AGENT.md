@@ -76,3 +76,14 @@ Do **not** hardcode A/B/C/D meanings in the bridge — invent ids that match you
 ## Fast wake turns
 
 Inbox `table` is slim (phase/title/commands/blob) — it does **not** repeat the full brief. Read `data/chat_<chat_id>.json` when you need brief/rules. On callback wakes: (1) one-line `Name: selection` (2) short narration + buttons (3) mark read. No healthcheck, no chat essays.
+
+## Hot linger (fast follow-up taps)
+
+After a webhook wake, stay in the turn ~2 minutes when the table is active:
+
+1. `python -m bridge.hot_cli start 120` at the beginning of the wake.
+2. Handle pending (announce + scene).
+3. Loop up to ~24 times: sleep 5s, `python -m bridge.drain`; if pending > 0, handle again and `python -m bridge.hot_cli extend 120`.
+4. `python -m bridge.hot_cli clear` before exiting.
+
+While hot, the bridge **skips** further wake POSTs (you already poll). First tap of a quiet table still pays cold-wake latency; taps inside the window should feel much faster.
