@@ -62,4 +62,13 @@ python -m bridge.send --chat-id <chat_id> --text "<say>" \
   --buttons-json '[{"id":"north","label":"Go north"},{"id":"south","label":"Go south"}]'
 ```
 
-A tap lands in `data/inbox.jsonl` as a normal `mesa.v1` item: `verb` = button `id`, empty `payload`, plus `"source": "callback_query"`. Drain it like any other verb and answer with another `bridge.send`. The bridge strips the keyboard after the first tap (no double-tap chaos). Do **not** hardcode A/B/C/D meanings in the bridge — invent ids that match your table.
+A tap lands in `data/inbox.jsonl` as a normal `mesa.v1` item: `verb` = button `id`, empty `payload`, plus `"source": "callback_query"`. Drain it like any other verb and answer with another `bridge.send`. The bridge strips the keyboard after the first tap (no double-tap chaos). 
+When you drain a `callback_query` inbox item, **you** (the agent) must post the story beat of the choice before narrating the next scene, e.g.:
+
+```text
+Antonio: B — bajo la silla
+```
+
+Use `user.name` and `button_label` (or the verb id) from the inbox item. The bridge only queues the tap and wakes you — it does **not** speak the selection.
+
+Do **not** hardcode A/B/C/D meanings in the bridge — invent ids that match your table.

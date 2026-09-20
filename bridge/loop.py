@@ -269,16 +269,10 @@ def _handle_callback(
         except Exception as exc:
             log.debug("editMessageReplyMarkup: %s", exc)
 
-    # Story thread: show who picked what (label from keyboard, else verb id)
-    label = label_from_callback_message(msg, raw_data) or verb
-    try:
-        tg.send_message(chat_id, f"{name}: {label}")
-    except Exception as exc:
-        log.warning("selection say: %s", exc)
-
     log.info("callback tap chat=%s uid=%s name=%s verb=%s mid=%s", chat_id, uid, name, verb, mid)
 
     append_log(game, f"{name}: tap {verb}"[:200])
+    button_label = label_from_callback_message(msg, raw_data) or verb
     item = {
         "schema": "mesa.v1",
         "chat_id": chat_id,
@@ -287,6 +281,7 @@ def _handle_callback(
         "verb": verb,
         "payload": payload,
         "source": "callback_query",
+        "button_label": button_label,
         "table": _table_snapshot(game),
     }
     if mid is not None:
