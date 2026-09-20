@@ -149,6 +149,25 @@ def _table_snapshot(game: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+
+def _human_seat_ids(game: dict[str, Any], bot_user_id: int | None = None) -> set[int]:
+    """Numeric player seats, excluding the bot if known. Empty → open table."""
+    out: set[int] = set()
+    skip_names = {"grok_master_game", "grok_maser_game_bot"}
+    for key, val in (game.get("players") or {}).items():
+        try:
+            pid = int(val.get("id") if isinstance(val, dict) else key)
+        except (TypeError, ValueError):
+            continue
+        if bot_user_id and pid == int(bot_user_id):
+            continue
+        pname = str((val.get("name") if isinstance(val, dict) else "") or "").lower()
+        if pname in skip_names:
+            continue
+        out.add(pid)
+    return out
+
+
 def _handle_callback(
     cfg: Any,
     tg: Telegram,
@@ -181,14 +200,36 @@ def _handle_callback(
     raw_data = str(cq.get("data") or "")
     button_id = resolve_callback_data(cfg.data_dir, chat_id, raw_data)
 
-    # Acknowledge immediately so Telegram stops the loading spinner
+    game = load(cfg.data_dir, chat_id)
+    game["chat_id"] = chat_id
+    admin = is_admin(cfg, tg, chat_id, uid, game)
+    lang = (game.get("lang") or "es")[:2]
+    bot_uid = getattr(cfg, "bot_user_id", None)
+    seats = _human_seat_ids(game, bot_user_id=bot_uid)
+
+    if seats and uid not in seats:
+        log.info("callback ignored (not seated) uid=%s name=%s chat=%s", uid, name, chat_id)
+        if cq_id:
+            try:
+                tg.answer_callback_query(
+                    cq_id,
+                    text={
+                        "es": "Primero /cmd join",
+                        "en": "Join first: /cmd join",
+                        "fr": "D'abord /cmd join",
+                        "de": "Zuerst /cmd join",
+                    }.get(lang, "Join first: /cmd join"),
+                )
+            except Exception as exc:
+                log.warning("answerCallbackQuery: %s", exc)
+        return
+
     if cq_id:
         try:
             tg.answer_callback_query(cq_id)
         except Exception as exc:
             log.warning("answerCallbackQuery: %s", exc)
 
-    # Prefer stripping reply_markup after first tap (avoid double-tap chaos)
     mid = msg.get("message_id")
     if mid is not None:
         try:
@@ -196,15 +237,9 @@ def _handle_callback(
         except Exception as exc:
             log.debug("editMessageReplyMarkup: %s", exc)
 
-    game = load(cfg.data_dir, chat_id)
-    game["chat_id"] = chat_id
-    admin = is_admin(cfg, tg, chat_id, uid, game)
-
-    # verb = button id when non-empty; else generic tap + payload
     verb = (button_id or "").strip() or "tap"
     payload = "" if verb != "tap" else (button_id or raw_data)
-    # If agent used a bare id as verb, keep payload empty (same as /cmd <verb>).
-    # For opaque/long ids that were mapped, verb is still the resolved id.
+    log.info("callback tap chat=%s uid=%s name=%s verb=%s", chat_id, uid, name, verb)
 
     append_log(game, f"{name}: tap {verb}"[:200])
     append_inbox(
