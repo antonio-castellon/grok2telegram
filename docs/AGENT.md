@@ -72,3 +72,7 @@ Antonio: B — bajo la silla
 Use `user.name` and `button_label` (or the verb id) from the inbox item. The bridge only queues the tap and wakes you — it does **not** speak the selection.
 
 Do **not** hardcode A/B/C/D meanings in the bridge — invent ids that match your table.
+
+## Fast wake turns
+
+Inbox `table` is slim (phase/title/commands/blob) — it does **not** repeat the full brief. Read `data/chat_<chat_id>.json` when you need brief/rules. On callback wakes: (1) one-line `Name: selection` (2) short narration + buttons (3) mark read. No healthcheck, no chat essays.

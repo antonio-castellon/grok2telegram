@@ -149,6 +149,16 @@ def _table_snapshot(game: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _table_snapshot_slim(game: dict[str, Any]) -> dict[str, Any]:
+    """Fast-path snapshot for taps: no repeated brief/rules (load chat_*.json if needed)."""
+    return {
+        "phase": game.get("phase"),
+        "title": game.get("title"),
+        "commands": game.get("commands"),
+        "blob": game.get("blob"),
+    }
+
+
 
 def _human_seat_ids(game: dict[str, Any], bot_user_id: int | None = None) -> set[int]:
     """Numeric player seats, excluding the bot if known. Empty → open table."""
@@ -275,7 +285,7 @@ def _handle_callback(
         "payload": payload,
         "source": "callback_query",
         "button_label": button_label,
-        "table": _table_snapshot(game),
+        "table": _table_snapshot_slim(game),
     }
     if mid is not None:
         item["message_id"] = int(mid)

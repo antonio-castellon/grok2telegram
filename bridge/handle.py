@@ -268,9 +268,6 @@ def handle(
                 "table": {
                     "phase": game.get("phase"),
                     "title": game.get("title"),
-                    "brief": game.get("brief"),
-                    "rules": game.get("rules"),
-                    "limits": game.get("limits"),
                     "commands": game.get("commands"),
                     "blob": game.get("blob"),
                 },
@@ -305,9 +302,6 @@ def handle(
                 "table": {
                     "phase": game.get("phase"),
                     "title": game.get("title"),
-                    "brief": game.get("brief"),
-                    "rules": game.get("rules"),
-                    "limits": game.get("limits"),
                     "commands": game.get("commands"),
                     "blob": game.get("blob"),
                 },
