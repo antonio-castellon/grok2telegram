@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from pathlib import Path
 from typing import Any
 
@@ -19,9 +21,10 @@ class Telegram:
         self._base = f"{API}/bot{token}"
 
     def get_updates(self, offset: int | None = None) -> list[dict[str, Any]]:
+        # Telegram expects allowed_updates as a JSON array string, not repeated query keys.
         params: dict[str, Any] = {
             "timeout": 30,
-            "allowed_updates": ["message", "callback_query"],
+            "allowed_updates": json.dumps(["message", "callback_query"]),
         }
         if offset is not None:
             params["offset"] = offset
